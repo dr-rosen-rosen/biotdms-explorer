@@ -1,0 +1,199 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix evid: <http://example.org/ontology/evidence#> .
+@prefix meas: <http://example.org/ontology/teamMeasurement#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.w3.org/2002/07/owl#> .
+
+[ rdf:type owl:Ontology
+ ] .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+evid:aggregatesFindingsFrom rdf:type owl:ObjectProperty ;
+                            rdfs:domain evid:metaAnalysis ;
+                            rdfs:range evid:primaryStudy ;
+                            rdfs:label "aggregates findings from" ;
+                            rdfs:comment "individual studies included in a meta-analysis" .
+                            # currently not used, but utlimately would need to know, but would need to know
+                            # which primary study effects are present in the meta-anlayses; long-term all
+                            # primary studies would need to be included individually (as time allows)
+
+evid:hasDependentVariable rdf:type owl:ObjectProperty ;
+                          rdfs:domain evid:EffectSize ;
+                          rdfs:range meas:Measure ;
+                          rdfs:comment "Links an effect size to the measure used as the dependent variable in a given analysis." ;
+                          rdfs:label "has dependent variable" .
+
+# evid:hasIndependentVariable rdf:type owl:ObjectProperty ;
+#                         rdfs:domain evid:EffectSize ;
+#                         rdfs:range meas:Measure ;
+#                         rdfs:comment "Links an effect size to the measure used as the independent variable in a given analysis." ;
+#                         rdfs:label "has independent variable" .
+
+evid:hasIndependentVariable rdf:type owl:ObjectProperty ;
+    rdfs:domain evid:EffectSize ;
+    rdfs:range [ rdf:type owl:Class ;
+                 owl:unionOf ( meas:Measure meas:Manipulation )
+               ] ;
+    rdfs:comment "Links an effect size to the measure or manipulation used as the independent variable in a given analysis." ;
+    rdfs:label "has independent variable" .
+
+evid:reportsEffectSize rdf:type owl:ObjectProperty ;
+                       rdfs:domain evid:Study ;
+                       rdfs:range evid:EffectSize ;
+                       rdfs:label "reports effect size" ;
+                       rdfs:comment "links effect sizes to the studies that report them" .
+
+evid:summarizesEffectBetween rdf:type owl:ObjectProperty ;
+                        rdfs:domain evid:metaAnalysis ;
+                        rdfs:range evid:ClassLevelRelationship .
+
+evid:hasSourceConstruct rdf:type owl:ObjectProperty ;
+    rdfs:domain evid:ClassLevelRelationship ;
+    rdfs:range meas:Construct ;
+    rdfs:label "has source construct" ;
+    rdfs:comment "Specifies the source construct for a meta-analytic effect" .
+
+evid:hasTargetConstruct rdf:type owl:ObjectProperty ;
+    rdfs:domain evid:ClassLevelRelationship ;
+    rdfs:range meas:Construct ;
+    rdfs:label "has target construct" ;
+    rdfs:comment "Specifies the target construct for a meta-analytic effect" .
+
+#################################################################
+#    Data properties
+#################################################################
+
+### Effect size properties
+
+evid:hasEffectSizeValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain evid:EffectSize ;
+    rdfs:range xsd:float ;
+    rdfs:label "has effect size value" ;
+    rdfs:comment "effect size value" .
+
+evid:usesEffectSizeMetric rdf:type owl:DatatypeProperty ;
+    rdfs:domain evid:EffectSize ;
+    rdfs:range xsd:string  ;
+    rdfs:label "type of effect size metric" ;
+    rdfs:comment "effect size type used".
+
+evid:hasUpperCI rdf:type owl:DatatypeProperty ;
+    rdfs:domain evid:EffectSize ;
+    rdfs:range xsd:float ;
+    rdfs:label "has upper CI" ;
+    rdfs:comment "upper confidence interval for effect size".
+
+evid:usesKStudies rdf:type owl:DatatypeProperty ;
+    rdfs:domain evid:EffectSize ;
+    rdfs:range xsd:float ;
+    rdfs:label "uses k studies" ;
+    rdfs:comment "number of studies included in a meta-analytic effect" .
+
+evid:hasLowerCI rdf:type owl:DatatypeProperty ;
+    rdfs:domain evid:EffectSize ;
+    rdfs:range xsd:float ;
+    rdfs:label "has lower CI" ;
+    rdfs:comment "lower confidence interval for effect size".
+
+evid:hasPValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain evid:EffectSize ;
+    rdfs:range xsd:float ;
+    rdfs:label "has p value" ;
+    rdfs:comment "p value for effect size".
+
+evid:hasSE rdf:type owl:DatatypeProperty ;
+    rdfs:domain evid:EffectSize ;
+    rdfs:range xsd:float ;
+    rdfs:label "has SE value" ;
+    rdfs:comment "standard error value for effect size estimate".
+
+evid:hasEffectLevel rdf:type owl:DatatypeProperty ;
+    rdfs:domain evid:EffectSize ;
+    rdfs:range xsd:string ;
+    rdfs:label "has effect level" ;
+    rdfs:comment "level of analysis of the effect (e.g., indiviudal, team, cross-level); pertains to measure level, but also the analysis approach".
+
+evid:perturbationPhase rdf:type owl:DatatypeProperty ;
+    rdfs:domain evid:EffectSize ;
+    rdfs:range xsd:string ;
+    rdfs:label "has perturbation phase" ;
+    rdfs:comment "whehter the effect is for data captured during perturbation, normal, or the entire performance episode".
+
+evid:hasNotes rdf:type owl:DatatypeProperty ;
+    rdfs:domain evid:EffectSize ;
+    rdfs:range xsd:string ;
+    rdfs:label "notes" ;
+    rdfs:comment "otherwise uncategorized but potentially important information about the effect".
+
+### Study and publication properties
+evid:hasIndividualSampleSize rdf:type owl:DatatypeProperty ;
+    rdfs:domain evid:EffectSize ;
+    rdfs:range xsd:float ;
+    rdfs:label "individual sample size" ;
+    rdfs:comment "number of individuals in the study" .
+
+evid:hasTeamSampleSize rdf:type owl:DatatypeProperty ;
+    rdfs:domain evid:EffectSize ;
+    rdfs:range xsd:float ;
+    rdfs:label "team sample size" ;
+    rdfs:comment "number of teams in the study" .
+
+evid:reportsStudy rdf:type owl:ObjectProperty ;
+    rdfs:domain evid:Publication ;
+    rdfs:range evid:Study ;
+    rdfs:label "reports study" ;
+    rdfs:comment "Publication reporting details of an included study." .
+
+evid:hasDOI rdf:type owl:DatatypeProperty ;
+    rdfs:domain evid:Publication ;
+    rdfs:range xsd:string ;
+    rdfs:label "has DOI" ;
+    rdfs:comment "DOI number or link for publication" .
+
+evid:hasPubYear rdf:type owl:DatatypeProperty ;
+    rdfs:domain evid:Publication ;
+    rdfs:range xsd:string ;
+    rdfs:label "has publication year" ;
+    rdfs:comment "year of publication" .
+
+evid:hasFirstAuthor rdf:type owl:DatatypeProperty ;
+    rdfs:domain evid:Publication ;
+    rdfs:range xsd:string ;
+    rdfs:label "has first author" ;
+    rdfs:comment "first author of publication" .
+
+evid:hasStudyPopulation rdf:type owl:DatatypeProperty ;
+    rdfs:domain evid:Study ;
+    rdfs:range xsd:string ;
+    rdfs:label "has study population" ;
+    rdfs:comment "description of population in the study" .
+
+#################################################################
+#    Classes
+#################################################################
+
+evid:EffectSize rdf:type owl:Class .
+
+
+evid:metaAnalysis rdf:type owl:Class ;
+                  rdfs:subClassOf evid:Study ;
+                  rdfs:label "meta-analysis" ;
+                  rdfs:comment "A meta-analytic study" .
+
+evid:primaryStudy rdf:type owl:Class ;
+                  rdfs:subClassOf evid:Study ;
+                  rdfs:label "primary study" ;
+                  rdfs:comment "a primary study" .
+
+
+evid:Study rdf:type owl:Class .
+
+evid:Publication rdf:type owl:Class .
+
+evid:ClassLevelRelationship rdf:type owl:Class .

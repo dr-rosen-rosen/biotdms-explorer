@@ -1,0 +1,450 @@
+# BioTDMS Signature Definitions - Unified Configuration
+# 
+# Supports two data sources:
+# 1. Entropy/AMI aggregated data (team_entropy_ami.csv)
+# 2. Session-level physiological data (processed_sessions/*.parquet)
+#
+# Column naming conventions:
+# - Entropy/AMI: {Role}_{SignalType}_{Measure} e.g., FOA_All_Entropy
+# - Session physio: {Role}_{Measure} e.g., FOA_IBI, Lead_alpha_Fp1
+
+# =============================================================================
+# GLOBAL CONFIGURATION
+# =============================================================================
+
+_config:
+  # Available roles for role-level signatures
+  roles:
+    - id: "FOA"
+      name: "Forward Observer Artillery"
+      color: "#f59e0b"
+    - id: "FOM"
+      name: "Fire Order Manager"
+      color: "#10b981"
+    - id: "FSO"
+      name: "Fire Support Officer"
+      color: "#6366f1"
+    - id: "JTAC"
+      name: "Joint Terminal Attack Controller"
+      color: "#ec4899"
+    - id: "Lead"
+      name: "Team Leader"
+      color: "#14b8a6"
+  
+  # Signal types for entropy/AMI data
+  signal_types:
+    - id: "All"
+      name: "All Signals"
+      description: "Combined neurophysiological and autonomic signals"
+    - id: "Neuro"
+      name: "Neurophysiological"
+      description: "EEG and fNIRS signals"
+    - id: "Auto"
+      name: "Autonomic"
+      description: "Cardiac and respiration signals"
+  
+  # Data source configurations
+  data_sources:
+    entropy_ami:
+      file: "team_entropy_ami.csv"
+      id_columns:
+        team: "Team"
+        scenario: "Run"
+        timestamp: "Time_Window"
+    
+    session_physio:
+      # Files are in data/processed_sessions/{DCE}/{Team}_{Day}_{Session}.parquet
+      base_path: "data/processed_sessions"
+      id_columns:
+        dce: "dce"
+        team: "team"
+        day: "day"
+        session: "session"
+        timestamp: "time_stamp"
+
+
+# =============================================================================
+# ENTROPY/AMI SIGNATURES (from team_entropy_ami.csv)
+# =============================================================================
+
+# Team-level entropy (no role dimension)
+team_entropy:
+  name: "Team Adaptation (Entropy)"
+  description: "Shannon entropy at the team level - measures collective physiological complexity"
+  category: "Team Entropy/AMI"
+  level: "team"
+  measure_type: "entropy"
+  data_source: "entropy_ami"
+  
+  # Supports signal type expansion: {signal} -> All, Neuro, Auto
+  column_template: "Team_{signal}_Entropy"
+  
+  visualization:
+    y_label: "Team Adaptation (Entropy)"
+    unit: "bits"
+    base_color: "#3b82f6"
+
+
+# Role-level entropy (expands by role and signal type)
+role_entropy:
+  name: "Role Adaptation (Entropy)"
+  description: "Shannon entropy for individual team member roles"
+  category: "Role Entropy/AMI"
+  level: "role"
+  measure_type: "entropy"
+  data_source: "entropy_ami"
+  
+  # Supports both role and signal expansion: {role}_{signal}_Entropy
+  column_template: "{role}_{signal}_Entropy"
+  
+  visualization:
+    y_label: "Adaptation (Entropy)"
+    unit: "bits"
+    # Color comes from role config
+
+
+# Role-level AMI
+role_ami:
+  name: "Role AMI"
+  description: "Average Mutual Information for individual team member roles"
+  category: "Role Entropy/AMI"
+  level: "role"
+  measure_type: "ami"
+  data_source: "entropy_ami"
+  
+  column_template: "{role}_{signal}_AMI"
+  
+  visualization:
+    y_label: "AMI"
+    unit: "bits"
+
+
+# Summary signatures
+mean_entropy:
+  name: "Mean Adaptation (All Layers)"
+  description: "Average entropy across all signal layers"
+  category: "Summary Statistics"
+  level: "summary"
+  measure_type: "entropy"
+  data_source: "entropy_ami"
+  
+  column_name: "Mean_Entropy_Layers"
+  
+  visualization:
+    y_label: "Mean Adaptation (Entropy)"
+    unit: "bits"
+    base_color: "#64748b"
+
+
+std_entropy:
+  name: "Entropy Variability"
+  description: "Standard deviation of entropy across layers"
+  category: "Summary Statistics"
+  level: "summary"
+  measure_type: "entropy"
+  data_source: "entropy_ami"
+  
+  column_name: "StdEntropy_Layers"
+  
+  visualization:
+    y_label: "Entropy StdDev"
+    unit: "bits"
+    base_color: "#94a3b8"
+
+
+mean_ami:
+  name: "Mean AMI (All Layers)"
+  description: "Average AMI across all signal layers"
+  category: "Summary Statistics"
+  level: "summary"
+  measure_type: "ami"
+  data_source: "entropy_ami"
+  
+  column_name: "Mean_AMI_Layers"
+  
+  visualization:
+    y_label: "Mean AMI"
+    unit: "bits"
+    base_color: "#475569"
+
+
+std_ami:
+  name: "AMI Variability"
+  description: "Standard deviation of AMI across layers"
+  category: "Summary Statistics"
+  level: "summary"
+  measure_type: "ami"
+  data_source: "entropy_ami"
+  
+  column_name: "StdAMI_Layers"
+  
+  visualization:
+    y_label: "AMI StdDev"
+    unit: "bits"
+    base_color: "#64748b"
+
+
+# =============================================================================
+# SESSION-LEVEL PHYSIOLOGICAL SIGNATURES (from processed_sessions/*.parquet)
+# =============================================================================
+
+# --- EKG Signatures ---
+role_ibi:
+  name: "Inter-Beat Interval"
+  description: "Time between heartbeats (cardiac rhythm)"
+  category: "Cardiac"
+  level: "role"
+  measure_type: "cardiac"
+  data_source: "session_physio"
+  sensor: "ekg"
+  
+  # Column pattern: {role}_IBI
+  column_template: "{role}_IBI"
+  
+  visualization:
+    y_label: "IBI"
+    unit: "ms"
+
+
+role_hrv:
+  name: "Heart Rate Variability (SDNN)"
+  description: "Standard deviation of inter-beat intervals"
+  category: "Cardiac"
+  level: "role"
+  measure_type: "cardiac"
+  data_source: "session_physio"
+  sensor: "ekg"
+  
+  column_template: "{role}_HRV_SDNN"
+  
+  visualization:
+    y_label: "HRV (SDNN)"
+    unit: "ms"
+
+
+# --- Pupil Signatures ---
+role_pupil:
+  name: "Pupil Diameter"
+  description: "Pupil size (cognitive load indicator)"
+  category: "Ocular"
+  level: "role"
+  measure_type: "pupil"
+  data_source: "session_physio"
+  sensor: "pupil"
+  
+  column_template: "{role}_pupil"
+  
+  visualization:
+    y_label: "Pupil Diameter"
+    unit: "mm"
+
+
+# --- Respiration Signatures ---
+role_resp_rate:
+  name: "Respiration Rate"
+  description: "Breathing frequency"
+  category: "Respiratory"
+  level: "role"
+  measure_type: "respiratory"
+  data_source: "session_physio"
+  sensor: "resp"
+  
+  column_template: "{role}_RSP_Rate"
+  
+  visualization:
+    y_label: "Resp Rate"
+    unit: "breaths/min"
+
+
+role_resp_rvt:
+  name: "Respiratory Volume per Time"
+  description: "RVT - ventilation measure"
+  category: "Respiratory"
+  level: "role"
+  measure_type: "respiratory"
+  data_source: "session_physio"
+  sensor: "resp"
+  
+  column_template: "{role}_RSP_RVT"
+  
+  visualization:
+    y_label: "RVT"
+    unit: "L/min"
+
+
+role_resp_amplitude:
+  name: "Respiration Amplitude"
+  description: "Depth of breathing"
+  category: "Respiratory"
+  level: "role"
+  measure_type: "respiratory"
+  data_source: "session_physio"
+  sensor: "resp"
+  
+  column_template: "{role}_RSP_Amplitude"
+  
+  visualization:
+    y_label: "Resp Amplitude"
+    unit: "a.u."
+
+
+# --- EEG Signatures (by frequency band) ---
+# These use templates that expand to specific channels
+# Format: {role}_{band}_{channel} e.g., FOA_alpha_Fp1
+
+role_eeg_delta:
+  name: "EEG Delta Band"
+  description: "Delta power (0.5-4 Hz) - deep sleep, unconscious processing"
+  category: "EEG"
+  level: "role"
+  measure_type: "eeg"
+  data_source: "session_physio"
+  sensor: "eeg"
+  band: "delta"
+  
+  # For EEG, column pattern is {role}_{band}_{channel}
+  # Channels defined separately for UI selection
+  column_template: "{role}_delta_{channel}"
+  
+  channels:
+    - Fp1
+    - Fp2
+    - F3
+    - F4
+    - Fz
+    - F7
+    - F8
+    - C3
+    - C4
+    - Cz
+    - T3
+    - T4
+    - T5
+    - T6
+    - P3
+    - P4
+    - Pz
+    - POz
+    - O1
+    - O2
+  
+  visualization:
+    y_label: "Delta Power"
+    unit: "µV²"
+
+
+role_eeg_theta:
+  name: "EEG Theta Band"
+  description: "Theta power (4-8 Hz) - memory, learning, drowsiness"
+  category: "EEG"
+  level: "role"
+  measure_type: "eeg"
+  data_source: "session_physio"
+  sensor: "eeg"
+  band: "theta"
+  
+  column_template: "{role}_theta_{channel}"
+  
+  channels:
+    - Fp1
+    - Fp2
+    - F3
+    - F4
+    - Fz
+    - F7
+    - F8
+    - C3
+    - C4
+    - Cz
+    - T3
+    - T4
+    - T5
+    - T6
+    - P3
+    - P4
+    - Pz
+    - POz
+    - O1
+    - O2
+  
+  visualization:
+    y_label: "Theta Power"
+    unit: "µV²"
+
+
+role_eeg_alpha:
+  name: "EEG Alpha Band"
+  description: "Alpha power (8-13 Hz) - relaxed alertness, attention"
+  category: "EEG"
+  level: "role"
+  measure_type: "eeg"
+  data_source: "session_physio"
+  sensor: "eeg"
+  band: "alpha"
+  
+  column_template: "{role}_alpha_{channel}"
+  
+  channels:
+    - Fp1
+    - Fp2
+    - F3
+    - F4
+    - Fz
+    - F7
+    - F8
+    - C3
+    - C4
+    - Cz
+    - T3
+    - T4
+    - T5
+    - T6
+    - P3
+    - P4
+    - Pz
+    - POz
+    - O1
+    - O2
+  
+  visualization:
+    y_label: "Alpha Power"
+    unit: "µV²"
+
+
+role_eeg_beta:
+  name: "EEG Beta Band"
+  description: "Beta power (13-30 Hz) - active thinking, focus, anxiety"
+  category: "EEG"
+  level: "role"
+  measure_type: "eeg"
+  data_source: "session_physio"
+  sensor: "eeg"
+  band: "beta"
+  
+  column_template: "{role}_beta_{channel}"
+  
+  channels:
+    - Fp1
+    - Fp2
+    - F3
+    - F4
+    - Fz
+    - F7
+    - F8
+    - C3
+    - C4
+    - Cz
+    - T3
+    - T4
+    - T5
+    - T6
+    - P3
+    - P4
+    - Pz
+    - POz
+    - O1
+    - O2
+  
+  visualization:
+    y_label: "Beta Power"
+    unit: "µV²"

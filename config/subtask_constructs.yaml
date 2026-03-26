@@ -1,0 +1,89 @@
+# Subtask → Construct Demand Mapping
+#
+# Maps subtask numbers to expected construct demands based on cognitive task analysis.
+# Weights are 0.0–1.0 indicating expected relevance/load during that subtask.
+# Construct keys should match ontology construct labels (case-insensitive).
+#
+# Populate weights from CTA findings. Current values are placeholders.
+
+subtasks:
+  1:
+    label: "Subtask 1"
+    description: ""
+    constructs:
+      communication: 0.5
+      coordination: 0.3
+      shared_mental_model: 0.7
+
+  2:
+    label: "Subtask 2"
+    description: ""
+    constructs:
+      coordination: 0.8
+      workload: 0.9
+      communication: 0.6
+
+  3:
+    label: "Subtask 3"
+    description: ""
+    constructs:
+      workload: 0.7
+      team_affect: 0.4
+      coordination: 0.5
+
+  4:
+    label: "Subtask 4"
+    description: ""
+    constructs:
+      coordination: 0.6
+      resilience: 0.5
+      communication: 0.7
+
+  5:
+    label: "Subtask 5"
+    description: ""
+    constructs:
+      team_affect: 0.6
+      shared_mental_model: 0.5
+      communication: 0.4
+
+# Display configuration for constructs in the heatmap strip.
+# color: hex color for the heatmap cells
+# short: abbreviated label for compact display
+construct_display:
+  communication:
+    color: "#3b82f6"
+    short: "Comm"
+  coordination:
+    color: "#10b981"
+    short: "Coord"
+  workload:
+    color: "#f59e0b"
+    short: "WL"
+  shared_mental_model:
+    color: "#8b5cf6"
+    short: "SMM"
+  team_affect:
+    color: "#ec4899"
+    short: "Affect"
+  resilience:
+    color: "#06b6d4"
+    short: "Resil"
+  adaptation:
+    color: "#84cc16"
+    short: "Adapt"
+  task_outcome:
+    color: "#6b7280"
+    short: "Task"
+  collaboration:
+    color: "#f97316"
+    short: "Collab"
+  interpersonal_team_process:
+    color: "#14b8a6"
+    short: "ITP"
+  team_composition:
+    color: "#a855f7"
+    short: "Comp"
+  teamwork:
+    color: "#0ea5e9"
+    short: "TW"
