@@ -15,7 +15,7 @@ A system for exploring team performance measurement signatures and their evidenc
 ### Setup (3 commands)
 
 ```bash
-git clone <repo-url> biotdms-explorer
+git clone https://github.com/dr-rosen-rosen/biotdms-explorer
 cd biotdms-explorer
 uv sync
 ```
@@ -41,8 +41,10 @@ biotdms-explorer/
 ├── core/                           # Core modules
 │   ├── __init__.py
 │   ├── ontology.py                 # OntologyAccess — SPARQL queries on the KG
+│   ├── measure_neighborhood.py     # Generates viz for measure's conceptual relations
+│   ├── measure_neighborhood.py     # Generates viz for measure's conceptual relations
 │   ├── data_loader.py              # Unified data loading (entropy/AMI + session physio)
-│   ├── data_ingest.py              # Raw CSV → parquet ingestion pipeline
+│   ├── subtask_construct_map.py    # Loads CTA derived teamwork demands for uc2 viz
 │   └── session_loader.py           # Session parquet reader
 │
 ├── views/                          # Streamlit view modules
@@ -68,7 +70,6 @@ biotdms-explorer/
 │
 ├── etl/                            # ETL scripts (run manually)
 │   ├── etl_excel_to_ttl.py         # Excel ontology coding → TTL
-│   └── process_merged_sessions.py  # CLI version of session processing
 │
 └── docs/
     └── DECISIONS_LOG.md            # Ontology normalization decisions
