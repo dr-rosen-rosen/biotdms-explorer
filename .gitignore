@@ -16,7 +16,7 @@ uv.lock
 
 # Data (too large / sensitive for repo — loaded via Data Management panel)
 data/processed_sessions/
-data/team_entropy_ami.csv
+data/team_entropy_ami*.csv
 data/SubTask_LookupTable*.xlsx
 data/subtask*.xlsx
 data/raw/
