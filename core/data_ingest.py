@@ -1,8 +1,9 @@
 """
-core/data_ingest.py — In-app data ingestion for BioTDMS Explorer
+core/data_ingest.py — Data ingestion for BioTDMS Explorer
 
 Converts raw merged per-person CSVs into session parquets that the existing
-DataLoader / UC2 pipeline expects.
+DataLoader / UC2 pipeline expects. Also handles installing entropy/AMI CSVs
+and subtask lookup tables into the app data directory.
 
 Directory convention (input):
   {raw_root}/DCE{N}/Team{N}/Session{N}/{Role}_Subj{NNN}/merged/merged_{Day}_{Session}_{Role}_Subj{NNN}_1hz.csv
@@ -11,17 +12,21 @@ Output convention (matching existing app):
   data/processed_sessions/{DCE}/{Team}_{Day}_{Session}.parquet
   data/processed_sessions/sessions_index.parquet
 
-Also handles entropy/AMI CSV placement into data/team_entropy_ami.csv.
+Entropy/AMI and subtask files are installed by copying them into the data
+directory with their original filenames preserved, so multiple per-DCE files
+can coexist (e.g., team_entropy_ami_DCE2.csv and team_entropy_ami_DCE3.csv).
 """
 
 import re
 import shutil
+import logging
 from pathlib import Path
-from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Callable
 
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 # ── Filename / path parsing ─────────────────────────────────────────
 
@@ -32,6 +37,8 @@ MERGED_FILENAME_RE = re.compile(
 # Columns that are metadata (don't get role-prefixed)
 META_COLUMNS = {'time_stamp', 'trial_running'}
 
+
+# ── Data classes ────────────────────────────────────────────────────
 
 @dataclass
 class MemberFile:
@@ -76,6 +83,27 @@ class IngestReport:
     processed: int = 0
     errors: List[str] = field(default_factory=list)
     details: List[str] = field(default_factory=list)
+
+    def summary(self) -> str:
+        """Return a human-readable summary string."""
+        lines = [
+            f"Discovered: {self.discovered} sessions",
+            f"New:        {self.new_sessions}",
+            f"Processed:  {self.processed}",
+            f"Skipped:    {self.skipped_existing}",
+            f"Errors:     {len(self.errors)}",
+        ]
+        if self.errors:
+            lines.append("")
+            lines.append("Errors:")
+            for err in self.errors:
+                lines.append(f"  - {err}")
+        if self.details:
+            lines.append("")
+            lines.append("Details:")
+            for d in self.details:
+                lines.append(f"  - {d}")
+        return "\n".join(lines)
 
 
 # ── Parsing ─────────────────────────────────────────────────────────
@@ -245,7 +273,7 @@ def rebuild_index(output_root: Path) -> pd.DataFrame:
                 'path': str(pq.relative_to(output_root)),
             })
         except Exception as e:
-            print(f"[WARN] Could not index {pq}: {e}")
+            logger.warning(f"Could not index {pq}: {e}")
 
     index_df = pd.DataFrame(records)
     if not index_df.empty:
@@ -261,7 +289,7 @@ def ingest_sessions(
     raw_root: Path,
     output_root: Path,
     skip_existing: bool = True,
-    progress_callback=None
+    progress_callback: Optional[Callable] = None
 ) -> IngestReport:
     """Run the full ingestion pipeline.
 
@@ -291,63 +319,76 @@ def ingest_sessions(
 
     if not to_process:
         report.details.append("No new sessions to process.")
-        # Still rebuild index in case it's missing
-        rebuild_index(output_root)
         return report
 
     # Process each session
-    total = len(to_process)
     for i, sg in enumerate(to_process):
-        label = f"{sg.dce}/{sg.team}/{sg.day}/{sg.session} ({len(sg.members)} members)"
+        label = f"{sg.dce}/{sg.team}/{sg.day}/{sg.session}"
 
         if progress_callback:
-            progress_callback(i, total, f"Processing {label}...")
+            progress_callback(i, len(to_process), f"Processing {label}...")
 
         try:
             out_path = process_session(sg, output_root)
             if out_path:
                 report.processed += 1
-                report.details.append(f"OK: {label} -> {out_path.name}")
+                roles = ', '.join(sg.roles)
+                report.details.append(f"{label} ({roles}) -> {out_path.name}")
             else:
-                report.errors.append(f"No data: {label}")
+                report.errors.append(f"{label}: no data produced")
         except Exception as e:
-            report.errors.append(f"Error: {label} — {e}")
+            report.errors.append(f"{label}: {e}")
+
+    if progress_callback:
+        progress_callback(len(to_process), len(to_process), "Rebuilding index...")
 
     # Rebuild index
-    if progress_callback:
-        progress_callback(total, total, "Rebuilding session index...")
-
     rebuild_index(output_root)
 
     return report
 
 
-def install_entropy_csv(source_path: Path, data_dir: Path) -> bool:
-    """Copy an entropy/AMI CSV into the app's data directory.
+# ── File installation helpers ───────────────────────────────────────
+#
+# These copy supporting data files into the app's data/ directory,
+# preserving original filenames so multiple per-DCE files can coexist.
+# For example:
+#   team_entropy_ami_DCE2.csv  and  team_entropy_ami_DCE3.csv
+#   SubTask_LookupTable_DCE2.xlsx  and  SubTask_LookupTable_DCE3.xlsx
 
-    Returns True if successful.
-    """
-    dest = data_dir / 'team_entropy_ami.csv'
-    try:
-        shutil.copy2(source_path, dest)
-        return True
-    except Exception as e:
-        print(f"Error copying entropy CSV: {e}")
-        return False
-
-
-def install_subtask_excel(source_path: Path, data_dir: Path) -> bool:
-    """Copy a subtask lookup table Excel file into the app's data directory.
-
-    Preserves the original filename (DataLoader.subtask_loader searches for
-    'SubTask_LookupTable*.xlsx' or 'subtask*.xlsx' via glob).
+def install_data_file(source_path: Path, data_dir: Path) -> bool:
+    """Copy a data file into the app data directory, preserving its filename.
 
     Returns True if successful.
     """
     dest = data_dir / source_path.name
     try:
+        data_dir.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source_path, dest)
+        logger.info(f"Installed {source_path.name} -> {dest}")
         return True
     except Exception as e:
-        print(f"Error copying subtask Excel: {e}")
+        logger.error(f"Error installing {source_path.name}: {e}")
         return False
+
+
+def install_entropy_csv(source_path: Path, data_dir: Path) -> bool:
+    """Copy an entropy/AMI CSV into the app's data directory.
+
+    Preserves the original filename so multiple per-DCE files can coexist.
+    The DataLoader should glob for team_entropy_ami*.csv.
+
+    Returns True if successful.
+    """
+    return install_data_file(source_path, data_dir)
+
+
+def install_subtask_excel(source_path: Path, data_dir: Path) -> bool:
+    """Copy a subtask lookup table Excel file into the app's data directory.
+
+    Preserves the original filename so multiple per-DCE files can coexist.
+    The DataLoader should glob for SubTask_LookupTable*.xlsx.
+
+    Returns True if successful.
+    """
+    return install_data_file(source_path, data_dir)

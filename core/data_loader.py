@@ -378,25 +378,50 @@ class DataLoader:
         self._session_index: Optional[pd.DataFrame] = None
         self._subtask_loader: Optional[SubtaskLoader] = None
 
-    # ---- Entropy/AMI data ----
+    # ---- Entropy/AMI data (multi-file) ----
+    #
+    # Globs for team_entropy_ami*.csv so multiple per-DCE files can coexist:
+    #   team_entropy_ami.csv           (legacy single file — still works)
+    #   team_entropy_ami_DCE2.csv      (per-DCE naming convention)
+    #   team_entropy_ami_DCE3.csv
 
-    @property
-    def entropy_csv_path(self) -> Path:
-        return self.data_dir / 'team_entropy_ami.csv'
+    def _find_entropy_csvs(self) -> List[Path]:
+        """Find all entropy/AMI CSV files in the data directory."""
+        return sorted(self.data_dir.glob('team_entropy_ami*.csv'))
 
     @property
     def entropy_df(self) -> Optional[pd.DataFrame]:
-        if self._entropy_df is None and self.entropy_csv_path.exists():
-            df = pd.read_csv(self.entropy_csv_path, dtype={'Session': str})
-            # Drop rows where Team is NaN (padding rows)
-            df = df.dropna(subset=['Team'])
-            df['Team'] = df['Team'].astype(int)
-            df['Run'] = df['Run'].astype(int)
-            self._entropy_df = df
+        if self._entropy_df is None:
+            csv_files = self._find_entropy_csvs()
+            if not csv_files:
+                return None
+
+            frames = []
+            for csv_path in csv_files:
+                try:
+                    df = pd.read_csv(csv_path, dtype={'Session': str})
+                    df = df.dropna(subset=['Team'])
+                    df['Team'] = df['Team'].astype(int)
+                    df['Run'] = df['Run'].astype(int)
+                    frames.append(df)
+                except Exception as e:
+                    print(f"Warning: Could not load entropy CSV {csv_path.name}: {e}")
+
+            if frames:
+                combined = pd.concat(frames, ignore_index=True)
+                # Deduplicate on Team/Run/Time_Window if same data appears
+                # in multiple files — last file wins (sorted alphabetically,
+                # so DCE3 > DCE2)
+                if 'Time_Window' in combined.columns:
+                    combined = combined.drop_duplicates(
+                        subset=['Team', 'Run', 'Time_Window'], keep='last'
+                    )
+                self._entropy_df = combined
+
         return self._entropy_df
 
     def has_entropy_data(self) -> bool:
-        return self.entropy_csv_path.exists()
+        return len(self._find_entropy_csvs()) > 0
 
     # ---- Session data ----
 
