@@ -62,6 +62,23 @@ _config:
         session: "session"
         timestamp: "time_stamp"
 
+    com_timeseries:
+      # Per-role binary speaking traces (zoom_timeseries_*.csv) under data/<subdir>/.
+      # Resampled on demand to target_hz; lead_in_skip_sec mirrors the entropy
+      # upstream convention (first 159 rows dropped).
+      # role_offsets_sec lets us correct per-role audio start drift if we learn
+      # the audio recordings don't share an origin with the session/entropy axis.
+      # Defaults assume zero drift — adjust once upstream confirms.
+      subdir: "com_timeseries"
+      target_hz: 1.0
+      lead_in_skip_sec: 159.0
+      role_offsets_sec:
+        FOA: 0.0
+        FOM: 0.0
+        FSO: 0.0
+        JTAC: 0.0
+        Lead: 0.0
+
 
 # =============================================================================
 # ENTROPY/AMI SIGNATURES (from team_entropy_ami.csv)
@@ -182,6 +199,27 @@ std_ami:
     y_label: "AMI StdDev"
     unit: "bits"
     base_color: "#64748b"
+
+
+# =============================================================================
+# COMMUNICATION SIGNATURES (from com_timeseries/zoom_timeseries_*.csv)
+# =============================================================================
+
+role_speaking_proportion:
+  name: "Speaking Proportion"
+  description: "Per-role rolling proportion of time speaking, derived from zoom audio traces. Resampled to entropy 1 Hz grid for direct comparison with team adaptation entropy."
+  category: "Communication"
+  level: "role"
+  measure_type: "speaking"
+  data_source: "com_timeseries"
+
+  # Template carries the role marker; the speaking loader iterates roles directly
+  # rather than looking up named columns.
+  column_template: "{role}"
+
+  visualization:
+    y_label: "Speaking Proportion"
+    unit: ""
 
 
 # =============================================================================

@@ -101,13 +101,18 @@ def get_icon(category: str) -> str:
 
 
 def _is_entropy_ami(sig_def) -> bool:
-    """Check if a signature is entropy or AMI (eligible for rolling stats)"""
+    """Check if a signature is eligible for rolling-window stats overlays.
+
+    Originally entropy/AMI only; speaking proportion shares the same 1 Hz grid
+    and benefits from the same rolling-mean ± SD treatment, so include it here.
+    """
     if sig_def is None:
         return False
-    if getattr(sig_def, 'data_source', '') == 'entropy_ami':
+    ds = getattr(sig_def, 'data_source', '')
+    if ds in ('entropy_ami', 'com_timeseries'):
         return True
     mt = (getattr(sig_def, 'measure_type', '') or '').lower()
-    return mt in ('entropy', 'ami')
+    return mt in ('entropy', 'ami', 'speaking')
 
 
 def _get_signal_types(sel_sig) -> List[str]:
@@ -461,7 +466,8 @@ def _render_full_analysis(
             continue
         if sig_def.level in ('team', 'summary'):
             team_sigs.append((sel, sig_def))
-        elif sig_def.level == 'role' and sig_def.data_source == 'entropy_ami':
+        elif sig_def.level == 'role' and sig_def.data_source in ('entropy_ami', 'com_timeseries'):
+            # Multi-role overlay sigs (entropy/AMI + speaking) render in the team panel
             role_entropy_sigs.append((sel, sig_def))
         elif sig_def.level == 'role' and sig_def.data_source == 'session_physio':
             session_role_sigs.append((sel, sig_def))
