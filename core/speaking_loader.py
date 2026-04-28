@@ -32,6 +32,7 @@ ZOOM_FILENAME_RE = re.compile(
 
 DEFAULT_TARGET_HZ = 1.0
 DEFAULT_LEAD_IN_SKIP_SEC = 159.0
+DEFAULT_OVERLAY_WINDOW_SEC = 60.0
 
 
 # ── Data classes ────────────────────────────────────────────────────
@@ -180,11 +181,13 @@ class SpeakingLoader:
         role_offsets_sec: Optional[Dict[str, float]] = None,
         lead_in_skip_sec: float = DEFAULT_LEAD_IN_SKIP_SEC,
         target_hz: float = DEFAULT_TARGET_HZ,
+        overlay_window_sec: float = DEFAULT_OVERLAY_WINDOW_SEC,
     ):
         self.com_dir = Path(com_dir)
         self.role_offsets_sec: Dict[str, float] = dict(role_offsets_sec or {})
         self.lead_in_skip_sec = float(lead_in_skip_sec)
         self.target_hz = float(target_hz)
+        self.overlay_window_sec = float(overlay_window_sec)
         self._discovery: Optional[SpeakingDiscoveryReport] = None
         self._index: Optional[pd.DataFrame] = None
 
@@ -263,3 +266,76 @@ class SpeakingLoader:
             (self.index['session'] == session)
         ]
         return sorted(m['role'].unique().tolist())
+
+    def load_session_overlay(
+        self,
+        team: str,
+        day: str,
+        session: str,
+        roles: List[str],
+        window_sec: Optional[float] = None,
+    ) -> Optional[Dict[str, object]]:
+        """Build an overlay-ready data bundle for one session.
+
+        Returns a dict with:
+          - 'window_sec': float, the bin width used
+          - 'timestamps': np.ndarray of bin-start times (seconds, post-lead-in axis)
+            All roles share this axis (extended to the longest role's max time).
+          - 'role_props': dict[role -> np.ndarray of shape (n_bins,)] with mean
+            speaking proportion per bin (NaN where the role has no data in that bin).
+          - 'roles_present': list[str] roles that had a file (subset of `roles`).
+          - 'roles_missing': list[str] roles with no zoom file for this session.
+
+        Returns None if no roles in `roles` had any data for this session.
+        """
+        ws = float(window_sec if window_sec is not None else self.overlay_window_sec)
+        if ws <= 0:
+            return None
+
+        target_hz = 1.0 / ws
+
+        # Load per-role grids at the overlay rate
+        per_role: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
+        roles_missing: List[str] = []
+        for role in roles:
+            grid = self.load_speaking_grid(
+                team=team, day=day, session=session, role=role,
+                target_hz=target_hz,
+            )
+            if grid is None:
+                roles_missing.append(role)
+                continue
+            ts, props = grid
+            if len(ts) == 0:
+                roles_missing.append(role)
+                continue
+            per_role[role] = (ts, props)
+
+        if not per_role:
+            return None
+
+        # Build a shared time axis covering the longest role
+        max_n = max(len(ts) for ts, _ in per_role.values())
+        # All grids start at 0 with the same bin width, so we can take the
+        # longest as the canonical axis.
+        canonical_ts = next(
+            ts for ts, _ in per_role.values() if len(ts) == max_n
+        )
+
+        role_props: Dict[str, np.ndarray] = {}
+        for role, (ts, props) in per_role.items():
+            if len(props) == max_n:
+                role_props[role] = props
+            else:
+                # Pad shorter roles with NaN so all arrays share the axis
+                padded = np.full(max_n, np.nan, dtype=float)
+                padded[:len(props)] = props
+                role_props[role] = padded
+
+        return {
+            'window_sec': ws,
+            'timestamps': canonical_ts,
+            'role_props': role_props,
+            'roles_present': list(role_props.keys()),
+            'roles_missing': roles_missing,
+        }

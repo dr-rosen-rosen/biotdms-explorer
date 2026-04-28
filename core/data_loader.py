@@ -795,6 +795,8 @@ class DataLoader:
         return results
 
     # ---- Speaking (com_timeseries) ----
+    # The speaking loader is exposed for use as a contextual overlay strip on
+    # team-level plots (see views/uc2_analysis.py), not as a peer signature.
 
     @property
     def speaking_loader(self) -> SpeakingLoader:
@@ -806,49 +808,12 @@ class DataLoader:
                 role_offsets_sec=cfg.get('role_offsets_sec', {}),
                 lead_in_skip_sec=cfg.get('lead_in_skip_sec', 159.0),
                 target_hz=cfg.get('target_hz', 1.0),
+                overlay_window_sec=cfg.get('overlay_window_sec', 60.0),
             )
         return self._speaking_loader
 
     def has_speaking_data(self) -> bool:
         return self.speaking_loader.has_data()
-
-    def load_speaking_timeseries(
-        self,
-        sig: SignatureDefinition,
-        team_scenario: TeamScenario,
-        roles: Optional[List[str]] = None,
-    ) -> List[TimeseriesData]:
-        """Load per-role speaking-proportion traces for a session."""
-        if not team_scenario.day or not team_scenario.session:
-            return []
-
-        team_str = f"Team{team_scenario.team_id}"
-        use_roles = roles or self.registry.role_ids
-
-        results: List[TimeseriesData] = []
-        for role in use_roles:
-            grid = self.speaking_loader.load_speaking_grid(
-                team=team_str,
-                day=team_scenario.day,
-                session=team_scenario.session,
-                role=role,
-            )
-            if grid is None:
-                continue
-            timestamps, props = grid
-            if len(timestamps) == 0:
-                continue
-            color = self.registry.role_colors.get(role, sig.base_color)
-            results.append(TimeseriesData(
-                label=f"{role} {sig.name}",
-                timestamps=timestamps.tolist(),
-                values=props.tolist(),
-                color=color,
-                unit=sig.unit,
-                role=role,
-                source_column=f"speaking_{role}",
-            ))
-        return results
 
     def load_timeseries(
         self,
@@ -900,15 +865,6 @@ class DataLoader:
             return self.load_session_timeseries(
                 sig, team_scenario, roles=roles, channel=channel
             )
-        elif sig.data_source == 'com_timeseries':
-            if team_scenario is None:
-                for ts in self.get_available_teams_scenarios():
-                    if ts.team_id == team_id and ts.scenario_id == scenario_id:
-                        team_scenario = ts
-                        break
-                if team_scenario is None:
-                    return []
-            return self.load_speaking_timeseries(sig, team_scenario, roles=roles)
         return []
 
     def get_session_start_epoch(self, team_scenario: TeamScenario) -> Optional[float]:

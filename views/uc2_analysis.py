@@ -101,18 +101,13 @@ def get_icon(category: str) -> str:
 
 
 def _is_entropy_ami(sig_def) -> bool:
-    """Check if a signature is eligible for rolling-window stats overlays.
-
-    Originally entropy/AMI only; speaking proportion shares the same 1 Hz grid
-    and benefits from the same rolling-mean ± SD treatment, so include it here.
-    """
+    """Check if a signature is entropy or AMI (eligible for rolling stats)"""
     if sig_def is None:
         return False
-    ds = getattr(sig_def, 'data_source', '')
-    if ds in ('entropy_ami', 'com_timeseries'):
+    if getattr(sig_def, 'data_source', '') == 'entropy_ami':
         return True
     mt = (getattr(sig_def, 'measure_type', '') or '').lower()
-    return mt in ('entropy', 'ami', 'speaking')
+    return mt in ('entropy', 'ami')
 
 
 def _get_signal_types(sel_sig) -> List[str]:
@@ -430,6 +425,44 @@ def _render_full_analysis(
         )
 
     # =============================================
+    # SPEAKING ACTIVITY OVERLAY
+    # =============================================
+    speaking_overlay_data = None
+    speaking_overlay_mode = 'none'
+    if loader.has_speaking_data() and team_scenario and team_scenario.day and team_scenario.session:
+        team_str = f"Team{team.team_id}"
+        speaking_roles_present = loader.speaking_loader.available_roles(
+            team_str, team_scenario.day, team_scenario.session
+        )
+        if speaking_roles_present:
+            n_roles = len(speaking_roles_present)
+            n_total = len(registry.role_ids)
+            roles_missing = [r for r in registry.role_ids if r not in speaking_roles_present]
+            missing_note = f" — missing: {', '.join(roles_missing)}" if roles_missing else ""
+            st.caption(
+                f"🎤 Speaking activity available ({n_roles}/{n_total} roles{missing_note})"
+            )
+            speaking_overlay_mode = st.radio(
+                "Speaking activity overlay",
+                ['none', 'stacked', 'heat'],
+                format_func=lambda m: {
+                    'none': '🚫 None',
+                    'stacked': '📊 Stacked proportion (per-role, by minute)',
+                    'heat': '🌡️ Heat strip (dominant speaker, by minute)',
+                }[m],
+                index=0,
+                horizontal=True,
+                key="speaking_overlay_mode",
+            )
+            if speaking_overlay_mode != 'none':
+                speaking_overlay_data = loader.speaking_loader.load_session_overlay(
+                    team=team_str,
+                    day=team_scenario.day,
+                    session=team_scenario.session,
+                    roles=registry.role_ids,
+                )
+
+    # =============================================
     # CONSTRUCT DEMAND MAP
     # =============================================
     construct_map = None
@@ -466,8 +499,7 @@ def _render_full_analysis(
             continue
         if sig_def.level in ('team', 'summary'):
             team_sigs.append((sel, sig_def))
-        elif sig_def.level == 'role' and sig_def.data_source in ('entropy_ami', 'com_timeseries'):
-            # Multi-role overlay sigs (entropy/AMI + speaking) render in the team panel
+        elif sig_def.level == 'role' and sig_def.data_source == 'entropy_ami':
             role_entropy_sigs.append((sel, sig_def))
         elif sig_def.level == 'role' and sig_def.data_source == 'session_physio':
             session_role_sigs.append((sel, sig_def))
@@ -526,7 +558,11 @@ def _render_full_analysis(
                 r_cfg = rolling_cfg if _is_entropy_ami(sig_def) else None
                 fig = _build_plot(all_traces, sig_def, team_subtasks, rolling_cfg=r_cfg,
                                   construct_map=construct_map, construct_view=construct_view,
-                                  signature_construct=sel_sig.construct)
+                                  signature_construct=sel_sig.construct,
+                                  speaking_overlay_data=speaking_overlay_data,
+                                  speaking_overlay_mode=speaking_overlay_mode,
+                                  role_colors=registry.role_colors,
+                                  role_order=registry.role_ids)
                 st.plotly_chart(fig, use_container_width=True,
                                 key=f"team_{sel_sig.data_signature_id}")
                 _render_inline_evidence(sel_sig, onto)
@@ -551,7 +587,11 @@ def _render_full_analysis(
                     st.markdown(f"#### {icon} {sig_def.name} — All Roles ({st_})")
                     fig = _build_plot(traces, sig_def, team_subtasks, rolling_cfg=rolling_cfg,
                                       construct_map=construct_map, construct_view=construct_view,
-                                      signature_construct=sel_sig.construct)
+                                      signature_construct=sel_sig.construct,
+                                      speaking_overlay_data=speaking_overlay_data,
+                                      speaking_overlay_mode=speaking_overlay_mode,
+                                      role_colors=registry.role_colors,
+                                      role_order=registry.role_ids)
                     st.plotly_chart(fig, use_container_width=True,
                                     key=f"teamrole_{sel_sig.data_signature_id}_{st_}")
             # Evidence once per signature (after all signal-type charts)
@@ -926,6 +966,180 @@ def _hex_to_rgb(hex_color: str) -> Tuple[int, int, int]:
     return 100, 100, 100
 
 
+def _add_speaking_stacked(
+    fig,
+    overlay_data: dict,
+    role_colors: Dict[str, str],
+    role_order: List[str],
+    row: int = 1,
+    col: int = 1,
+):
+    """Add a stacked-area speaking-proportion strip.
+
+    Each role contributes a band of height = its mean speaking proportion in
+    each window bin. Total stack height ranges 0..len(roles): flat-top means
+    everyone speaking; thin total stack means quiet. Order of stacking follows
+    `role_order` (bottom → top).
+    """
+    import numpy as np
+    timestamps = overlay_data.get('timestamps')
+    role_props = overlay_data.get('role_props', {})
+    if timestamps is None or len(timestamps) == 0 or not role_props:
+        return
+
+    window_sec = float(overlay_data.get('window_sec', 60.0))
+    # Center bin labels at start+window/2 for nicer hover
+    x = list(timestamps)
+
+    # Build cumulative stack from the bottom up
+    cumulative = np.zeros(len(x), dtype=float)
+    for role in role_order:
+        if role not in role_props:
+            continue
+        vals = np.nan_to_num(role_props[role], nan=0.0)
+        next_cumulative = cumulative + vals
+        color = role_colors.get(role, '#888')
+        r, g, b = _hex_to_rgb(color)
+        fill_color = f'rgba({r},{g},{b},0.55)'
+        line_color = f'rgba({r},{g},{b},0.9)'
+
+        # Lower bound (invisible)
+        fig.add_trace(
+            go.Scatter(
+                x=x, y=cumulative.tolist(),
+                mode='lines', line=dict(width=0),
+                showlegend=False, hoverinfo='skip',
+            ),
+            row=row, col=col,
+        )
+        # Upper bound with fill to previous
+        fig.add_trace(
+            go.Scatter(
+                x=x, y=next_cumulative.tolist(),
+                mode='lines',
+                line=dict(width=0.5, color=line_color),
+                fill='tonexty', fillcolor=fill_color,
+                name=f"{role} speaking",
+                legendgroup='speaking',
+                hovertemplate=(
+                    f"<b>{role}</b><br>"
+                    "Window start: %{x:.0f}s<br>"
+                    f"Speaking proportion: %{{customdata:.2f}} (over {int(window_sec)}s)"
+                    "<extra></extra>"
+                ),
+                customdata=vals.tolist(),
+            ),
+            row=row, col=col,
+        )
+        cumulative = next_cumulative
+
+    # Y-axis: total possible stack height
+    n_roles_max = len(role_order)
+    yaxis_key = f'yaxis{row}' if row > 1 else 'yaxis'
+    fig.update_layout(**{
+        yaxis_key: dict(
+            title=f'Speaking ({int(window_sec)}s)',
+            range=[0, max(n_roles_max, 1)],
+            showgrid=False,
+            tickfont=dict(size=9),
+            fixedrange=True,
+        )
+    })
+
+
+def _add_speaking_heat(
+    fig,
+    overlay_data: dict,
+    role_colors: Dict[str, str],
+    role_order: List[str],
+    row: int = 1,
+    col: int = 1,
+    silence_threshold: float = 0.05,
+):
+    """Add a single-row heat strip showing dominant speaker per window.
+
+    Each cell spans one window bin, colored by the role with the highest mean
+    speaking proportion in that bin. Opacity scales with that proportion. Bins
+    where no role exceeds `silence_threshold` are rendered as light gray.
+    """
+    import numpy as np
+    timestamps = overlay_data.get('timestamps')
+    role_props = overlay_data.get('role_props', {})
+    if timestamps is None or len(timestamps) == 0 or not role_props:
+        return
+
+    window_sec = float(overlay_data.get('window_sec', 60.0))
+    roles = [r for r in role_order if r in role_props]
+    if not roles:
+        return
+
+    # Build a (n_roles, n_bins) matrix
+    n_bins = len(timestamps)
+    mat = np.full((len(roles), n_bins), np.nan, dtype=float)
+    for i, role in enumerate(roles):
+        vals = role_props[role]
+        if len(vals) == n_bins:
+            mat[i, :] = vals
+        else:
+            mat[i, :len(vals)] = vals
+    mat_filled = np.nan_to_num(mat, nan=0.0)
+
+    dominant_idx = np.argmax(mat_filled, axis=0)
+    dominant_val = mat_filled[dominant_idx, np.arange(n_bins)]
+
+    # Draw one rect per bin
+    yref = f'y{row}' if row > 1 else 'y'
+    xref = f'x{row}' if row > 1 else 'x'
+    for j in range(n_bins):
+        x0 = float(timestamps[j])
+        x1 = x0 + window_sec
+        val = float(dominant_val[j])
+        if val < silence_threshold:
+            fill_color = 'rgba(200,200,200,0.25)'
+            label = 'silence'
+        else:
+            role = roles[int(dominant_idx[j])]
+            r, g, b = _hex_to_rgb(role_colors.get(role, '#888'))
+            opacity = float(min(0.9, 0.2 + val * 0.8))
+            fill_color = f'rgba({r},{g},{b},{opacity})'
+            label = role
+
+        fig.add_shape(
+            type='rect',
+            x0=x0, x1=x1, y0=0, y1=1,
+            xref=xref, yref=yref,
+            fillcolor=fill_color,
+            line=dict(width=0),
+            layer='below',
+        )
+        # Hover marker at cell center
+        fig.add_trace(
+            go.Scatter(
+                x=[x0 + window_sec / 2], y=[0.5],
+                mode='markers', marker=dict(size=1, opacity=0),
+                showlegend=False,
+                hovertemplate=(
+                    f"<b>{label}</b><br>"
+                    f"Window: %{{x:.0f}}s ± {int(window_sec/2)}s<br>"
+                    f"Speaking proportion: {val:.2f}"
+                    "<extra></extra>"
+                ),
+            ),
+            row=row, col=col,
+        )
+
+    yaxis_key = f'yaxis{row}' if row > 1 else 'yaxis'
+    fig.update_layout(**{
+        yaxis_key: dict(
+            title=f'Dominant ({int(window_sec)}s)',
+            range=[0, 1],
+            showgrid=False,
+            showticklabels=False,
+            fixedrange=True,
+        )
+    })
+
+
 def _build_plot(
     traces: List[TimeseriesData],
     sig_def,
@@ -937,6 +1151,10 @@ def _build_plot(
     construct_map: Optional['SubtaskConstructMap'] = None,
     construct_view: str = 'none',
     signature_construct: Optional[str] = None,
+    speaking_overlay_data: Optional[dict] = None,
+    speaking_overlay_mode: str = 'none',
+    role_colors: Optional[Dict[str, str]] = None,
+    role_order: Optional[List[str]] = None,
 ) -> go.Figure:
     """
     Build a Plotly figure with traces + subtask overlays + optional rolling stats
@@ -975,24 +1193,50 @@ def _build_plot(
         if n_heatmap_rows == 0:
             show_heatmap = False
 
-    if show_heatmap:
-        # Calculate height ratios
-        heatmap_height = max(25 * n_heatmap_rows, 60)
-        total_height = height + heatmap_height
-        signal_ratio = height / total_height
-        heatmap_ratio = heatmap_height / total_height
+    # Determine speaking overlay
+    show_speaking = (
+        speaking_overlay_mode in ('stacked', 'heat')
+        and speaking_overlay_data is not None
+        and speaking_overlay_data.get('role_props')
+    )
+
+    # Decide subplot layout (top → bottom: speaking, signal, construct heatmap)
+    if show_heatmap or show_speaking:
+        # Heights — keep signal panel dominant
+        signal_height = height
+        speaking_height = 90 if show_speaking else 0
+        heatmap_height = max(25 * n_heatmap_rows, 60) if show_heatmap else 0
+        total_height = signal_height + speaking_height + heatmap_height
+
+        row_heights: List[float] = []
+        subplot_titles: List[str] = []
+        if show_speaking:
+            row_heights.append(speaking_height / total_height)
+            label = 'Speaking proportion (per role, per minute)' \
+                if speaking_overlay_mode == 'stacked' \
+                else 'Dominant speaker (per minute)'
+            subplot_titles.append(label)
+        row_heights.append(signal_height / total_height)
+        subplot_titles.append("")
+        if show_heatmap:
+            row_heights.append(heatmap_height / total_height)
+            subplot_titles.append("Construct Demands")
 
         fig = make_subplots(
-            rows=2, cols=1,
+            rows=len(row_heights), cols=1,
             shared_xaxes=True,
             vertical_spacing=0.03,
-            row_heights=[signal_ratio, heatmap_ratio],
-            subplot_titles=["", "Construct Demands"],
+            row_heights=row_heights,
+            subplot_titles=subplot_titles,
         )
-        signal_row = 1
+        speaking_row = 1 if show_speaking else None
+        signal_row = (2 if show_speaking else 1)
+        heatmap_row = signal_row + 1 if show_heatmap else None
     else:
         fig = go.Figure()
+        speaking_row = None
         signal_row = None
+        heatmap_row = None
         total_height = height
     # Add subtask overlays to signal panel
     add_kwargs = dict(row=signal_row, col=1) if signal_row else {}
@@ -1038,24 +1282,46 @@ def _build_plot(
                                    col=1 if signal_row else None,
                                    construct_map=construct_map)
 
-    # Add construct heatmap strip if enabled
-    if show_heatmap:
+    # Add speaking overlay strip (top row) if enabled
+    if show_speaking and speaking_row:
+        _role_colors = role_colors or {}
+        _role_order = role_order or list(_role_colors.keys())
+        if speaking_overlay_mode == 'stacked':
+            _add_speaking_stacked(
+                fig, speaking_overlay_data,
+                role_colors=_role_colors, role_order=_role_order,
+                row=speaking_row, col=1,
+            )
+        elif speaking_overlay_mode == 'heat':
+            _add_speaking_heat(
+                fig, speaking_overlay_data,
+                role_colors=_role_colors, role_order=_role_order,
+                row=speaking_row, col=1,
+            )
+
+    # Add construct heatmap strip (bottom row) if enabled
+    if show_heatmap and heatmap_row:
         _add_construct_heatmap(
             fig, subtasks, construct_map,
             construct_filter=construct_filter,
-            row=2, col=1,
+            row=heatmap_row, col=1,
         )
 
     unit_str = f" ({sig_def.unit})" if sig_def and sig_def.unit else ""
     y_title = y_label or (sig_def.y_label if sig_def else "Value")
 
-    # Use the correct axis keys depending on subplot vs simple figure
-    if signal_row:
-        xaxis_key = 'xaxis'
-        yaxis_key = 'yaxis'
-    else:
-        xaxis_key = 'xaxis'
-        yaxis_key = 'yaxis'
+    # Determine signal-row axis keys (axes are numbered by row in subplots)
+    n_rows = (1 if speaking_row else 0) + 1 + (1 if heatmap_row else 0)
+    bottom_row = (heatmap_row if heatmap_row else signal_row) or 1
+
+    def _xaxis_key(r):
+        return 'xaxis' if r == 1 else f'xaxis{r}'
+    def _yaxis_key(r):
+        return 'yaxis' if r == 1 else f'yaxis{r}'
+
+    sig_xkey = _xaxis_key(signal_row or 1)
+    sig_ykey = _yaxis_key(signal_row or 1)
+    bottom_xkey = _xaxis_key(bottom_row)
 
     layout_kwargs = dict(
         legend=dict(orientation="h", yanchor="bottom", y=1.02,
@@ -1063,19 +1329,18 @@ def _build_plot(
         hovermode='x unified', plot_bgcolor='white',
         height=total_height, margin=dict(l=60, r=20, t=50, b=50)
     )
-    layout_kwargs[xaxis_key] = dict(
-        title="Time (seconds from session start)" if not show_heatmap else "",
+    # Signal x-axis: only show title if it's the bottom row
+    layout_kwargs[sig_xkey] = dict(
+        title="Time (seconds from session start)" if signal_row == bottom_row else "",
         showgrid=True, gridcolor='rgba(0,0,0,0.06)',
     )
-    layout_kwargs[yaxis_key] = dict(
+    layout_kwargs[sig_ykey] = dict(
         title=f"{y_title}{unit_str}",
         showgrid=True, gridcolor='rgba(0,0,0,0.06)',
     )
-
-    # X-axis title goes on the bottom subplot when heatmap is present
-    if show_heatmap:
-        xaxis2_key = 'xaxis2'
-        layout_kwargs[xaxis2_key] = dict(
+    # Bottom-row x-axis title (when bottom != signal row)
+    if bottom_row != (signal_row or 1):
+        layout_kwargs[bottom_xkey] = dict(
             title="Time (seconds from session start)",
             showgrid=True, gridcolor='rgba(0,0,0,0.06)',
         )

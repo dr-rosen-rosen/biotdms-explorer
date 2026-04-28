@@ -64,13 +64,16 @@ _config:
 
     com_timeseries:
       # Per-role binary speaking traces (zoom_timeseries_*.csv) under data/<subdir>/.
-      # Resampled on demand to target_hz; lead_in_skip_sec mirrors the entropy
-      # upstream convention (first 159 rows dropped).
+      # Used as a contextual overlay strip on the team-level entropy/AMI plots,
+      # not as a peer signature. The overlay aggregates to overlay_window_sec
+      # bins (default 60s = "minute by minute proportion of time spent speaking").
       # role_offsets_sec lets us correct per-role audio start drift if we learn
       # the audio recordings don't share an origin with the session/entropy axis.
-      # Defaults assume zero drift — adjust once upstream confirms.
+      # lead_in_skip_sec mirrors the upstream entropy convention (first 159 rows
+      # dropped). Defaults assume zero drift — adjust once upstream confirms.
       subdir: "com_timeseries"
       target_hz: 1.0
+      overlay_window_sec: 60.0
       lead_in_skip_sec: 159.0
       role_offsets_sec:
         FOA: 0.0
@@ -201,25 +204,10 @@ std_ami:
     base_color: "#64748b"
 
 
-# =============================================================================
-# COMMUNICATION SIGNATURES (from com_timeseries/zoom_timeseries_*.csv)
-# =============================================================================
-
-role_speaking_proportion:
-  name: "Speaking Proportion"
-  description: "Per-role rolling proportion of time speaking, derived from zoom audio traces. Resampled to entropy 1 Hz grid for direct comparison with team adaptation entropy."
-  category: "Communication"
-  level: "role"
-  measure_type: "speaking"
-  data_source: "com_timeseries"
-
-  # Template carries the role marker; the speaking loader iterates roles directly
-  # rather than looking up named columns.
-  column_template: "{role}"
-
-  visualization:
-    y_label: "Speaking Proportion"
-    unit: ""
+# Communication signals from com_timeseries/zoom_timeseries_*.csv are exposed
+# as a contextual overlay strip on team-level plots (see UC2 view), not as
+# selectable signatures. Future peer signatures derived from this data
+# (turn-taking rate, speaking entropy/Gini) will be added here when defined.
 
 
 # =============================================================================
