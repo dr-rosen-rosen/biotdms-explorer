@@ -274,15 +274,25 @@ class SpeakingLoader:
         session: str,
         roles: List[str],
         window_sec: Optional[float] = None,
+        union_fine_hz: float = 10.0,
     ) -> Optional[Dict[str, object]]:
         """Build an overlay-ready data bundle for one session.
+
+        Computes both per-role and team-union (any-role-speaking) proportions
+        at the overlay window. The union is taken at the fine `union_fine_hz`
+        grid (default 10 Hz / 100 ms bins) by OR-ing role activity per fine
+        sample, then averaging into the wider window — this avoids double-
+        counting overlapping speech that summing per-role proportions would
+        produce, and is fine-grained enough that brief utterances aren't
+        rounded up to a full active second.
 
         Returns a dict with:
           - 'window_sec': float, the bin width used
           - 'timestamps': np.ndarray of bin-start times (seconds, post-lead-in axis)
-            All roles share this axis (extended to the longest role's max time).
-          - 'role_props': dict[role -> np.ndarray of shape (n_bins,)] with mean
-            speaking proportion per bin (NaN where the role has no data in that bin).
+          - 'role_props': dict[role -> np.ndarray] mean per-role speaking
+            proportion per bin (in [0, 1]; can sum to more than 1 across roles).
+          - 'union_prop': np.ndarray of "any role speaking" proportion per bin
+            (in [0, 1]); 1 - union_prop is the silence proportion.
           - 'roles_present': list[str] roles that had a file (subset of `roles`).
           - 'roles_missing': list[str] roles with no zoom file for this session.
 
@@ -292,50 +302,78 @@ class SpeakingLoader:
         if ws <= 0:
             return None
 
-        target_hz = 1.0 / ws
+        if union_fine_hz <= 0:
+            return None
+        fine_hz = float(union_fine_hz)
 
-        # Load per-role grids at the overlay rate
-        per_role: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
         roles_missing: List[str] = []
+        per_role_fine: Dict[str, np.ndarray] = {}
         for role in roles:
             grid = self.load_speaking_grid(
                 team=team, day=day, session=session, role=role,
-                target_hz=target_hz,
+                target_hz=fine_hz,
             )
             if grid is None:
                 roles_missing.append(role)
                 continue
-            ts, props = grid
-            if len(ts) == 0:
+            _ts, props = grid
+            if len(props) == 0:
                 roles_missing.append(role)
                 continue
-            per_role[role] = (ts, props)
+            per_role_fine[role] = props
 
-        if not per_role:
+        if not per_role_fine:
             return None
 
-        # Build a shared time axis covering the longest role
-        max_n = max(len(ts) for ts, _ in per_role.values())
-        # All grids start at 0 with the same bin width, so we can take the
-        # longest as the canonical axis.
-        canonical_ts = next(
-            ts for ts, _ in per_role.values() if len(ts) == max_n
-        )
+        # Pad all role arrays to common length (longest role) with NaN
+        fine_n = max(len(arr) for arr in per_role_fine.values())
+        for role in list(per_role_fine.keys()):
+            arr = per_role_fine[role]
+            if len(arr) < fine_n:
+                padded = np.full(fine_n, np.nan, dtype=float)
+                padded[:len(arr)] = arr
+                per_role_fine[role] = padded
 
-        role_props: Dict[str, np.ndarray] = {}
-        for role, (ts, props) in per_role.items():
-            if len(props) == max_n:
-                role_props[role] = props
-            else:
-                # Pad shorter roles with NaN so all arrays share the axis
-                padded = np.full(max_n, np.nan, dtype=float)
-                padded[:len(props)] = props
-                role_props[role] = padded
+        # Fine-grain union: 1 if ANY role spoke in this fine bin (any binary
+        # sample within the bin was 1). At 10 Hz / 100 ms bins this is fine
+        # enough that we can use a strict > 0 test without inflating brief
+        # speech. NaN (role missing data) is treated as not speaking.
+        speaking_mask = np.zeros(fine_n, dtype=float)
+        for arr in per_role_fine.values():
+            active = np.where(np.isnan(arr), 0.0, (arr > 0.0).astype(float))
+            speaking_mask = np.maximum(speaking_mask, active)
+
+        # Bin to overlay window
+        samples_per_window = int(round(ws * fine_hz))
+        if samples_per_window <= 0:
+            return None
+        n_bins = fine_n // samples_per_window
+        if n_bins == 0:
+            return None
+
+        def _bin_mean(arr: np.ndarray) -> np.ndarray:
+            truncated = arr[:n_bins * samples_per_window]
+            reshaped = truncated.reshape(n_bins, samples_per_window)
+            # All-NaN slices (trailing bins for shorter roles) → NaN; suppress
+            # the resulting RuntimeWarning since we expect this and treat NaN
+            # downstream as zero contribution.
+            with np.errstate(invalid='ignore'):
+                import warnings
+                with warnings.catch_warnings():
+                    warnings.simplefilter('ignore', category=RuntimeWarning)
+                    return np.nanmean(reshaped, axis=1)
+
+        role_props_binned: Dict[str, np.ndarray] = {
+            role: _bin_mean(arr) for role, arr in per_role_fine.items()
+        }
+        union_prop = _bin_mean(speaking_mask)
+        timestamps = np.arange(n_bins, dtype=float) * ws
 
         return {
             'window_sec': ws,
-            'timestamps': canonical_ts,
-            'role_props': role_props,
-            'roles_present': list(role_props.keys()),
+            'timestamps': timestamps,
+            'role_props': role_props_binned,
+            'union_prop': union_prop,
+            'roles_present': list(role_props_binned.keys()),
             'roles_missing': roles_missing,
         }

@@ -973,37 +973,47 @@ def _add_speaking_stacked(
     role_order: List[str],
     row: int = 1,
     col: int = 1,
+    silence_color: str = 'rgba(180,180,180,0.35)',
 ):
-    """Add a stacked-area speaking-share strip.
+    """Add a stacked-area speaking strip with explicit silence band.
 
-    Each role contributes a band whose height is its share of the total
-    speaking time in each window bin (i.e., per-bin role proportions are
-    renormalized to sum to 1). Silent bins (where no role spoke) leave the
-    stack at 0, so silence is still visually obvious.
+    Decomposes each minute into:
+      - One band per role, height = (role's share of talk) × (team-union speaking
+        proportion). This means total role-band height equals the fraction of
+        the minute where ANY role was speaking — preserving overall density.
+      - A silence band on top, height = 1 − team-union speaking proportion.
+    Total stack always sums to 1.
 
-    Hover surfaces both the normalized share and the raw absolute speaking
-    proportion so density information isn't lost.
+    Hover surfaces both the role's share-of-talk and absolute speaking
+    proportion; the silence band shows its own proportion.
     """
     import numpy as np
     timestamps = overlay_data.get('timestamps')
     role_props = overlay_data.get('role_props', {})
-    if timestamps is None or len(timestamps) == 0 or not role_props:
+    union_prop = overlay_data.get('union_prop')
+    if timestamps is None or len(timestamps) == 0 or not role_props or union_prop is None:
         return
 
     window_sec = float(overlay_data.get('window_sec', 60.0))
     x = list(timestamps)
     n_bins = len(x)
 
-    # Build per-bin row totals across all present roles (ignoring NaNs)
     role_arrays: Dict[str, np.ndarray] = {
         role: np.nan_to_num(role_props[role], nan=0.0)
         for role in role_order if role in role_props
     }
     if not role_arrays:
         return
-    totals = np.zeros(n_bins, dtype=float)
+
+    # Sum-of-roles is what we use to compute share-of-talk; can exceed union
+    # when speech overlaps. Fall back gracefully when the sum is zero.
+    sum_roles = np.zeros(n_bins, dtype=float)
     for arr in role_arrays.values():
-        totals = totals + arr
+        sum_roles = sum_roles + arr
+    union = np.asarray(union_prop, dtype=float)
+    # In silent minutes union may be 0 or NaN — clamp to [0, 1].
+    union_safe = np.nan_to_num(np.clip(union, 0.0, 1.0), nan=0.0)
+    silence = 1.0 - union_safe
 
     cumulative = np.zeros(n_bins, dtype=float)
     for role in role_order:
@@ -1011,16 +1021,19 @@ def _add_speaking_stacked(
             continue
         raw = role_arrays[role]
         with np.errstate(invalid='ignore', divide='ignore'):
-            share = np.where(totals > 0, raw / totals, 0.0)
-        next_cumulative = cumulative + share
+            share = np.where(sum_roles > 0, raw / sum_roles, 0.0)
+        # Role band height = share-of-talk × union (so band area integrates to
+        # the role's share of speaking time, scaled by overall density).
+        band = share * union_safe
+        next_cumulative = cumulative + band
 
         color = role_colors.get(role, '#888')
         r, g, b = _hex_to_rgb(color)
-        fill_color = f'rgba({r},{g},{b},0.55)'
+        fill_color = f'rgba({r},{g},{b},0.6)'
         line_color = f'rgba({r},{g},{b},0.9)'
 
-        # customdata: per-bin (raw_proportion, total_proportion) for hover
-        customdata = np.column_stack([raw, totals])
+        # customdata cols: 0 = raw role proportion, 1 = share-of-talk
+        customdata = np.column_stack([raw, share])
 
         fig.add_trace(
             go.Scatter(
@@ -1041,9 +1054,8 @@ def _add_speaking_stacked(
                 hovertemplate=(
                     f"<b>{role}</b><br>"
                     "Window start: %{x:.0f}s<br>"
-                    "Share of talk: %{y:.0%}<br>"
-                    f"Raw speaking: %{{customdata[0]:.2f}} of {int(window_sec)}s"
-                    " (team total %{customdata[1]:.2f})"
+                    f"Spoke %{{customdata[0]:.0%}} of this {int(window_sec)}s window<br>"
+                    "(%{customdata[1]:.0%} of talk time)"
                     "<extra></extra>"
                 ),
                 customdata=customdata,
@@ -1052,11 +1064,40 @@ def _add_speaking_stacked(
         )
         cumulative = next_cumulative
 
-    # Y-axis: normalized share, capped at 1.0
+    # Silence band on top — fills 1 − union
+    next_cumulative = cumulative + silence
+    fig.add_trace(
+        go.Scatter(
+            x=x, y=cumulative.tolist(),
+            mode='lines', line=dict(width=0),
+            showlegend=False, hoverinfo='skip',
+        ),
+        row=row, col=col,
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=x, y=next_cumulative.tolist(),
+            mode='lines',
+            line=dict(width=0.5, color='rgba(120,120,120,0.5)'),
+            fill='tonexty', fillcolor=silence_color,
+            name='Silence',
+            legendgroup='speaking',
+            hovertemplate=(
+                "<b>Silence</b><br>"
+                "Window start: %{x:.0f}s<br>"
+                f"%{{customdata:.0%}} of this {int(window_sec)}s window"
+                "<extra></extra>"
+            ),
+            customdata=silence.tolist(),
+        ),
+        row=row, col=col,
+    )
+
+    # Y-axis locked to [0, 1]
     yaxis_key = f'yaxis{row}' if row > 1 else 'yaxis'
     fig.update_layout(**{
         yaxis_key: dict(
-            title=f'Talk share ({int(window_sec)}s)',
+            title=f'Speaking ({int(window_sec)}s)',
             range=[0, 1],
             tickvals=[0, 0.5, 1.0],
             ticktext=['0', '½', '1'],
