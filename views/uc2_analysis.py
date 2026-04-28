@@ -444,11 +444,12 @@ def _render_full_analysis(
             )
             speaking_overlay_mode = st.radio(
                 "Speaking activity overlay",
-                ['none', 'stacked', 'heat'],
+                ['none', 'stacked', 'heat', 'lanes'],
                 format_func=lambda m: {
                     'none': '🚫 None',
                     'stacked': '📊 Stacked proportion (per-role, by minute)',
                     'heat': '🌡️ Heat strip (dominant speaker, by minute)',
+                    'lanes': '🪧 Per-role lanes (spoke / didn\'t, by minute)',
                 }[m],
                 index=0,
                 horizontal=True,
@@ -1201,6 +1202,94 @@ def _add_speaking_heat(
     })
 
 
+def _add_speaking_lanes(
+    fig,
+    overlay_data: dict,
+    role_colors: Dict[str, str],
+    role_order: List[str],
+    row: int = 1,
+    col: int = 1,
+    speaking_threshold: float = 0.05,
+):
+    """Add per-role speaking/not-speaking swim-lanes (one row per role).
+
+    Each cell is filled with the role color when that role spoke for at least
+    `speaking_threshold` of the minute (default 5% = 3s of a 60s window),
+    empty otherwise. Y-axis is labeled with role IDs.
+    """
+    import numpy as np
+    timestamps = overlay_data.get('timestamps')
+    role_props = overlay_data.get('role_props', {})
+    if timestamps is None or len(timestamps) == 0 or not role_props:
+        return
+
+    window_sec = float(overlay_data.get('window_sec', 60.0))
+
+    # Display order: top → bottom, mirroring role_order top-down
+    lanes = [r for r in role_order if r in role_props]
+    if not lanes:
+        return
+    n_lanes = len(lanes)
+
+    yref = f'y{row}' if row > 1 else 'y'
+    xref = f'x{row}' if row > 1 else 'x'
+
+    for i, role in enumerate(lanes):
+        # Place first role at the top
+        y0 = n_lanes - i - 1
+        y1 = y0 + 1
+        r, g, b = _hex_to_rgb(role_colors.get(role, '#888'))
+        fill_color = f'rgba({r},{g},{b},0.7)'
+        empty_color = 'rgba(230,230,230,0.4)'
+
+        vals = role_props[role]
+        for j in range(len(timestamps)):
+            x0 = float(timestamps[j])
+            x1 = x0 + window_sec
+            v = float(vals[j]) if not np.isnan(vals[j]) else 0.0
+            spoke = v >= speaking_threshold
+
+            fig.add_shape(
+                type='rect',
+                x0=x0, x1=x1, y0=y0, y1=y1,
+                xref=xref, yref=yref,
+                fillcolor=fill_color if spoke else empty_color,
+                line=dict(width=0.3, color='rgba(255,255,255,0.6)'),
+                layer='below',
+            )
+
+            # Hover marker at cell center
+            fig.add_trace(
+                go.Scatter(
+                    x=[x0 + window_sec / 2], y=[y0 + 0.5],
+                    mode='markers', marker=dict(size=1, opacity=0),
+                    showlegend=False,
+                    hovertemplate=(
+                        f"<b>{role}</b><br>"
+                        f"Window: %{{x:.0f}}s ± {int(window_sec/2)}s<br>"
+                        f"{'Spoke' if spoke else 'Did not speak'}"
+                        f" ({v:.0%} of {int(window_sec)}s)"
+                        "<extra></extra>"
+                    ),
+                ),
+                row=row, col=col,
+            )
+
+    # Y-axis labels = role IDs
+    yaxis_key = f'yaxis{row}' if row > 1 else 'yaxis'
+    fig.update_layout(**{
+        yaxis_key: dict(
+            tickmode='array',
+            tickvals=[n_lanes - i - 0.5 for i in range(n_lanes)],
+            ticktext=lanes,
+            range=[0, n_lanes],
+            showgrid=False,
+            fixedrange=True,
+            tickfont=dict(size=10),
+        )
+    })
+
+
 def _build_plot(
     traces: List[TimeseriesData],
     sig_def,
@@ -1256,7 +1345,7 @@ def _build_plot(
 
     # Determine speaking overlay
     show_speaking = (
-        speaking_overlay_mode in ('stacked', 'heat')
+        speaking_overlay_mode in ('stacked', 'heat', 'lanes')
         and speaking_overlay_data is not None
         and speaking_overlay_data.get('role_props')
     )
@@ -1265,7 +1354,18 @@ def _build_plot(
     if show_heatmap or show_speaking:
         # Heights — keep signal panel dominant
         signal_height = height
-        speaking_height = 90 if show_speaking else 0
+        # Lanes mode needs taller strip (one mini-row per role); other modes
+        # are single-row strips at fixed height.
+        if not show_speaking:
+            speaking_height = 0
+        elif speaking_overlay_mode == 'lanes':
+            n_lanes = sum(
+                1 for r in (role_order or [])
+                if r in (speaking_overlay_data or {}).get('role_props', {})
+            ) or 1
+            speaking_height = max(28 * n_lanes, 90)
+        else:
+            speaking_height = 90
         heatmap_height = max(25 * n_heatmap_rows, 60) if show_heatmap else 0
         total_height = signal_height + speaking_height + heatmap_height
 
@@ -1273,9 +1373,11 @@ def _build_plot(
         subplot_titles: List[str] = []
         if show_speaking:
             row_heights.append(speaking_height / total_height)
-            label = 'Speaking proportion (per role, per minute)' \
-                if speaking_overlay_mode == 'stacked' \
-                else 'Dominant speaker (per minute)'
+            label = {
+                'stacked': 'Speaking proportion (per role, per minute)',
+                'heat': 'Dominant speaker (per minute)',
+                'lanes': 'Spoke / did not speak (per role, per minute)',
+            }.get(speaking_overlay_mode, 'Speaking activity')
             subplot_titles.append(label)
         row_heights.append(signal_height / total_height)
         subplot_titles.append("")
@@ -1355,6 +1457,12 @@ def _build_plot(
             )
         elif speaking_overlay_mode == 'heat':
             _add_speaking_heat(
+                fig, speaking_overlay_data,
+                role_colors=_role_colors, role_order=_role_order,
+                row=speaking_row, col=1,
+            )
+        elif speaking_overlay_mode == 'lanes':
+            _add_speaking_lanes(
                 fig, speaking_overlay_data,
                 role_colors=_role_colors, role_order=_role_order,
                 row=speaking_row, col=1,
