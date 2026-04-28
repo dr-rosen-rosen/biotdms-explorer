@@ -974,12 +974,15 @@ def _add_speaking_stacked(
     row: int = 1,
     col: int = 1,
 ):
-    """Add a stacked-area speaking-proportion strip.
+    """Add a stacked-area speaking-share strip.
 
-    Each role contributes a band of height = its mean speaking proportion in
-    each window bin. Total stack height ranges 0..len(roles): flat-top means
-    everyone speaking; thin total stack means quiet. Order of stacking follows
-    `role_order` (bottom → top).
+    Each role contributes a band whose height is its share of the total
+    speaking time in each window bin (i.e., per-bin role proportions are
+    renormalized to sum to 1). Silent bins (where no role spoke) leave the
+    stack at 0, so silence is still visually obvious.
+
+    Hover surfaces both the normalized share and the raw absolute speaking
+    proportion so density information isn't lost.
     """
     import numpy as np
     timestamps = overlay_data.get('timestamps')
@@ -988,22 +991,37 @@ def _add_speaking_stacked(
         return
 
     window_sec = float(overlay_data.get('window_sec', 60.0))
-    # Center bin labels at start+window/2 for nicer hover
     x = list(timestamps)
+    n_bins = len(x)
 
-    # Build cumulative stack from the bottom up
-    cumulative = np.zeros(len(x), dtype=float)
+    # Build per-bin row totals across all present roles (ignoring NaNs)
+    role_arrays: Dict[str, np.ndarray] = {
+        role: np.nan_to_num(role_props[role], nan=0.0)
+        for role in role_order if role in role_props
+    }
+    if not role_arrays:
+        return
+    totals = np.zeros(n_bins, dtype=float)
+    for arr in role_arrays.values():
+        totals = totals + arr
+
+    cumulative = np.zeros(n_bins, dtype=float)
     for role in role_order:
-        if role not in role_props:
+        if role not in role_arrays:
             continue
-        vals = np.nan_to_num(role_props[role], nan=0.0)
-        next_cumulative = cumulative + vals
+        raw = role_arrays[role]
+        with np.errstate(invalid='ignore', divide='ignore'):
+            share = np.where(totals > 0, raw / totals, 0.0)
+        next_cumulative = cumulative + share
+
         color = role_colors.get(role, '#888')
         r, g, b = _hex_to_rgb(color)
         fill_color = f'rgba({r},{g},{b},0.55)'
         line_color = f'rgba({r},{g},{b},0.9)'
 
-        # Lower bound (invisible)
+        # customdata: per-bin (raw_proportion, total_proportion) for hover
+        customdata = np.column_stack([raw, totals])
+
         fig.add_trace(
             go.Scatter(
                 x=x, y=cumulative.tolist(),
@@ -1012,7 +1030,6 @@ def _add_speaking_stacked(
             ),
             row=row, col=col,
         )
-        # Upper bound with fill to previous
         fig.add_trace(
             go.Scatter(
                 x=x, y=next_cumulative.tolist(),
@@ -1024,22 +1041,25 @@ def _add_speaking_stacked(
                 hovertemplate=(
                     f"<b>{role}</b><br>"
                     "Window start: %{x:.0f}s<br>"
-                    f"Speaking proportion: %{{customdata:.2f}} (over {int(window_sec)}s)"
+                    "Share of talk: %{y:.0%}<br>"
+                    f"Raw speaking: %{{customdata[0]:.2f}} of {int(window_sec)}s"
+                    " (team total %{customdata[1]:.2f})"
                     "<extra></extra>"
                 ),
-                customdata=vals.tolist(),
+                customdata=customdata,
             ),
             row=row, col=col,
         )
         cumulative = next_cumulative
 
-    # Y-axis: total possible stack height
-    n_roles_max = len(role_order)
+    # Y-axis: normalized share, capped at 1.0
     yaxis_key = f'yaxis{row}' if row > 1 else 'yaxis'
     fig.update_layout(**{
         yaxis_key: dict(
-            title=f'Speaking ({int(window_sec)}s)',
-            range=[0, max(n_roles_max, 1)],
+            title=f'Talk share ({int(window_sec)}s)',
+            range=[0, 1],
+            tickvals=[0, 0.5, 1.0],
+            ticktext=['0', '½', '1'],
             showgrid=False,
             tickfont=dict(size=9),
             fixedrange=True,
