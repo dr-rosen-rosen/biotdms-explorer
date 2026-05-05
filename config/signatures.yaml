@@ -67,14 +67,20 @@ _config:
       # Used as a contextual overlay strip on the team-level entropy/AMI plots,
       # not as a peer signature. The overlay aggregates to overlay_window_sec
       # bins (default 60s = "minute by minute proportion of time spent speaking").
-      # role_offsets_sec lets us correct per-role audio start drift if we learn
-      # the audio recordings don't share an origin with the session/entropy axis.
-      # lead_in_skip_sec mirrors the upstream entropy convention (first 159 rows
-      # dropped). Defaults assume zero drift — adjust once upstream confirms.
+      #
+      # Alignment policy: each role's comm file END is anchored to the entropy
+      # END (same wall-clock session-stop second). The speaking loader works
+      # backwards from the file end by `target_length_sec` (= number of
+      # entropy rows for that scenario, looked up at runtime). Anything before
+      # the entropy start is dropped; comm files shorter than the entropy axis
+      # (early dropouts) are NaN-padded at the start.
+      #
+      # role_offsets_sec is reserved for the rare case where an individual
+      # role's recording end-time is known to differ from the session end by
+      # a fixed amount; default 0 means each file's last sample IS session-end.
       subdir: "com_timeseries"
       target_hz: 1.0
       overlay_window_sec: 60.0
-      lead_in_skip_sec: 159.0
       role_offsets_sec:
         FOA: 0.0
         FOM: 0.0

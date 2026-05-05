@@ -806,7 +806,6 @@ class DataLoader:
             self._speaking_loader = SpeakingLoader(
                 com_dir=self.data_dir / subdir,
                 role_offsets_sec=cfg.get('role_offsets_sec', {}),
-                lead_in_skip_sec=cfg.get('lead_in_skip_sec', 159.0),
                 target_hz=cfg.get('target_hz', 1.0),
                 overlay_window_sec=cfg.get('overlay_window_sec', 60.0),
             )
@@ -814,6 +813,35 @@ class DataLoader:
 
     def has_speaking_data(self) -> bool:
         return self.speaking_loader.has_data()
+
+    def entropy_length_sec_for_scenario(
+        self,
+        team_id: str,
+        team_scenario: 'TeamScenario',
+    ) -> Optional[float]:
+        """Number of entropy rows (= seconds at 1Hz) for a given scenario.
+
+        Used to end-align speaking data to the entropy axis: the speaking
+        grid covers the last entropy_length_sec seconds of each role's
+        recording.
+        """
+        if self.entropy_df is None or team_scenario is None:
+            return None
+        run = team_scenario.entropy_run
+        if not run:
+            run = self.get_entropy_run_for_scenario(team_id, team_scenario)
+        if not run:
+            return None
+        try:
+            df = self.entropy_df[
+                (self.entropy_df['Team'] == int(team_id)) &
+                (self.entropy_df['Run'] == int(run))
+            ]
+        except (ValueError, TypeError):
+            return None
+        if df.empty:
+            return None
+        return float(len(df))
 
     def load_timeseries(
         self,

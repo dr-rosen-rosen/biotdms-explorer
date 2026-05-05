@@ -5,13 +5,19 @@ Reads zoom_timeseries_*.csv files from data/com_timeseries/, each containing a d
 binary speaking trace (`time`, `Talking`) for one (team, day, session, role).
 
 Canonical processed form: per-role speaking-proportion grid at the entropy sampling
-rate (1 Hz by default), aligned to the entropy time axis (with the upstream 159s
-lead-in drop applied, mirroring the entropy/AMI convention).
+rate (1 Hz by default), end-aligned to the entropy time axis.
 
-Time alignment knobs live in config (speaking.role_offsets_sec, speaking.lead_in_skip_sec,
-speaking.target_hz). All defaults assume zoom_timeseries `time` is seconds-from-session-start
-and that the audio recording origin matches the entropy session origin. Both are
-unconfirmed upstream assumptions — adjust the offsets once the data team confirms.
+Alignment policy (per upstream confirmation):
+  - The comm file and the entropy data end at the same wall-clock second
+    (session stop). All files in a session share their END point.
+  - Per-role recording start times vary; some recordings dropped out before
+    the session ended. Each file's `time` column is "seconds since that
+    role's recording start", so we anchor each file's MAX time to the
+    common end and work backwards by `target_length_sec` (= number of
+    entropy rows for that scenario).
+  - Anything before the entropy data's first second is dropped. If a comm
+    file is shorter than the entropy axis (recording dropped early), the
+    start of its grid is padded with NaN.
 """
 
 import logging
@@ -31,7 +37,6 @@ ZOOM_FILENAME_RE = re.compile(
 )
 
 DEFAULT_TARGET_HZ = 1.0
-DEFAULT_LEAD_IN_SKIP_SEC = 159.0
 DEFAULT_OVERLAY_WINDOW_SEC = 60.0
 
 
@@ -117,25 +122,30 @@ def to_speaking_grid(
     df: pd.DataFrame,
     target_hz: float = DEFAULT_TARGET_HZ,
     role_offset_sec: float = 0.0,
-    lead_in_skip_sec: float = DEFAULT_LEAD_IN_SKIP_SEC,
-    session_duration_sec: Optional[float] = None,
+    target_length_sec: Optional[float] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Resample (time, Talking) to a uniform grid aligned to the entropy axis.
+    """Resample (time, Talking) to a uniform end-anchored grid.
+
+    Anchors the LAST sample of the comm file to the entropy end and works
+    backwards. Output timestamps run 0..target_length_sec, where 0 is the
+    entropy axis start (= session_end - target_length_sec).
 
     Args:
         df: must have columns 'time' (seconds, float) and 'Talking' (0/1).
         target_hz: output grid frequency (1.0 Hz to match entropy by default).
-        role_offset_sec: added to df['time'] to shift to a common session origin.
-            Use a positive value if the audio recording started AFTER session t=0.
-        lead_in_skip_sec: seconds dropped from the start to mirror the upstream
-            entropy lead-in convention. Output time axis starts at 0, corresponding
-            to session second `lead_in_skip_sec`.
-        session_duration_sec: if given, the grid extends to this many session-relative
-            seconds; otherwise it ends at the last sample's adjusted time.
+        role_offset_sec: added to df['time'] before alignment. Use only if the
+            recording end-time itself is known to differ from the entropy end
+            by a fixed per-role amount.
+        target_length_sec: if given, output is exactly target_length_sec * target_hz
+            bins, end-aligned. Anything before (file_end - target_length_sec) is
+            dropped. If the comm file is shorter than target_length_sec, the start
+            is NaN-padded. If None, output covers the full file from the first
+            sample.
 
     Returns:
-        (timestamps, proportions) — same axis as load_entropy_timeseries output.
-        Proportions are mean(Talking) per bin in [0, 1]; bins with no samples are NaN.
+        (timestamps, proportions) — timestamps in seconds on the entropy axis;
+        proportions are mean(Talking) per bin in [0, 1]; bins with no samples
+        are NaN.
     """
     if df.empty or 'time' not in df.columns or 'Talking' not in df.columns:
         return np.array([]), np.array([])
@@ -143,12 +153,21 @@ def to_speaking_grid(
     t = df['time'].to_numpy(dtype=float) + float(role_offset_sec)
     v = df['Talking'].to_numpy(dtype=float)
 
-    grid_start_sec = float(lead_in_skip_sec)
-    grid_end_sec = float(session_duration_sec) if session_duration_sec is not None else float(t.max())
+    if target_hz <= 0:
+        return np.array([]), np.array([])
+    bin_width = 1.0 / target_hz
+
+    file_end = float(t.max())
+    if target_length_sec is None:
+        grid_start_sec = float(t.min())
+        grid_end_sec = file_end
+    else:
+        grid_end_sec = file_end
+        grid_start_sec = file_end - float(target_length_sec)
+
     if grid_end_sec <= grid_start_sec:
         return np.array([]), np.array([])
 
-    bin_width = 1.0 / target_hz
     edges = np.arange(grid_start_sec, grid_end_sec + bin_width, bin_width)
     if len(edges) < 2:
         return np.array([]), np.array([])
@@ -165,6 +184,7 @@ def to_speaking_grid(
     with np.errstate(invalid='ignore', divide='ignore'):
         props = np.where(counts > 0, sums / counts, np.nan)
 
+    # Output timestamps: 0 = grid_start_sec (= entropy start on the entropy axis)
     timestamps = edges[:-1] - grid_start_sec
     return timestamps, props
 
@@ -179,13 +199,11 @@ class SpeakingLoader:
         self,
         com_dir: Path,
         role_offsets_sec: Optional[Dict[str, float]] = None,
-        lead_in_skip_sec: float = DEFAULT_LEAD_IN_SKIP_SEC,
         target_hz: float = DEFAULT_TARGET_HZ,
         overlay_window_sec: float = DEFAULT_OVERLAY_WINDOW_SEC,
     ):
         self.com_dir = Path(com_dir)
         self.role_offsets_sec: Dict[str, float] = dict(role_offsets_sec or {})
-        self.lead_in_skip_sec = float(lead_in_skip_sec)
         self.target_hz = float(target_hz)
         self.overlay_window_sec = float(overlay_window_sec)
         self._discovery: Optional[SpeakingDiscoveryReport] = None
@@ -233,9 +251,15 @@ class SpeakingLoader:
         session: str,
         role: str,
         target_hz: Optional[float] = None,
-        session_duration_sec: Optional[float] = None,
+        target_length_sec: Optional[float] = None,
     ) -> Optional[Tuple[np.ndarray, np.ndarray]]:
-        """Return (timestamps, speaking_proportion) for one role/session, or None."""
+        """Return (timestamps, speaking_proportion) for one role/session, or None.
+
+        If target_length_sec is given, the grid is end-aligned: the file's last
+        second is anchored to the entropy end, and output covers exactly
+        target_length_sec seconds working backwards. Files shorter than the
+        target are NaN-padded at the start.
+        """
         path = self.find_file(team, day, session, role)
         if path is None:
             return None
@@ -248,8 +272,7 @@ class SpeakingLoader:
             df,
             target_hz=target_hz if target_hz is not None else self.target_hz,
             role_offset_sec=self.role_offsets_sec.get(role, 0.0),
-            lead_in_skip_sec=self.lead_in_skip_sec,
-            session_duration_sec=session_duration_sec,
+            target_length_sec=target_length_sec,
         )
 
     def available_sessions(self) -> List[Tuple[str, str, str]]:
@@ -275,6 +298,7 @@ class SpeakingLoader:
         roles: List[str],
         window_sec: Optional[float] = None,
         union_fine_hz: float = 10.0,
+        target_length_sec: Optional[float] = None,
     ) -> Optional[Dict[str, object]]:
         """Build an overlay-ready data bundle for one session.
 
@@ -312,6 +336,7 @@ class SpeakingLoader:
             grid = self.load_speaking_grid(
                 team=team, day=day, session=session, role=role,
                 target_hz=fine_hz,
+                target_length_sec=target_length_sec,
             )
             if grid is None:
                 roles_missing.append(role)
@@ -325,13 +350,19 @@ class SpeakingLoader:
         if not per_role_fine:
             return None
 
-        # Pad all role arrays to common length (longest role) with NaN
+        # Pad all role arrays to common length with NaN. When end-aligned
+        # (target_length_sec given), pad at the START to preserve end-anchor;
+        # otherwise pad at the END (start-aligned, legacy behavior).
         fine_n = max(len(arr) for arr in per_role_fine.values())
+        pad_at_start = target_length_sec is not None
         for role in list(per_role_fine.keys()):
             arr = per_role_fine[role]
             if len(arr) < fine_n:
                 padded = np.full(fine_n, np.nan, dtype=float)
-                padded[:len(arr)] = arr
+                if pad_at_start:
+                    padded[fine_n - len(arr):] = arr
+                else:
+                    padded[:len(arr)] = arr
                 per_role_fine[role] = padded
 
         # Fine-grain union: 1 if ANY role spoke in this fine bin (any binary

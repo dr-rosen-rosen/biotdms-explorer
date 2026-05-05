@@ -456,11 +456,17 @@ def _render_full_analysis(
                 key="speaking_overlay_mode",
             )
             if speaking_overlay_mode != 'none':
+                # Anchor speaking data to the entropy end: pass entropy length
+                # so the loader trims/pads each role's comm file to match.
+                target_length_sec = loader.entropy_length_sec_for_scenario(
+                    team.team_id, team_scenario
+                )
                 speaking_overlay_data = loader.speaking_loader.load_session_overlay(
                     team=team_str,
                     day=team_scenario.day,
                     session=team_scenario.session,
                     roles=registry.role_ids,
+                    target_length_sec=target_length_sec,
                 )
 
     # =============================================
