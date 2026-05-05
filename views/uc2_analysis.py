@@ -1220,8 +1220,13 @@ def _add_speaking_lanes(
     """Add per-role speaking/not-speaking swim-lanes (one row per role).
 
     Each cell is filled with the role color when that role spoke for at least
-    `speaking_threshold` of the minute (default 5% = 3s of a 60s window),
-    empty otherwise. Y-axis is labeled with role IDs.
+    `speaking_threshold` of the window, empty (light gray) otherwise. Y-axis
+    labels = role IDs.
+
+    Implemented as one go.Heatmap per role (binary z = spoke / didn't),
+    rendering thousands of cells per role in a single canvas draw. Per-cell
+    add_shape was too slow at small window sizes (~7000 calls × subplot
+    validation overhead pushed render time into the minutes).
     """
     import numpy as np
     timestamps = overlay_data.get('timestamps')
@@ -1231,55 +1236,61 @@ def _add_speaking_lanes(
 
     window_sec = float(overlay_data.get('window_sec', 60.0))
 
-    # Display order: top → bottom, mirroring role_order top-down
+    # Display order: first role at the TOP of the strip
     lanes = [r for r in role_order if r in role_props]
     if not lanes:
         return
     n_lanes = len(lanes)
 
-    yref = f'y{row}' if row > 1 else 'y'
-    xref = f'x{row}' if row > 1 else 'x'
+    # Cell edges: x_edges has n_bins+1 entries so heatmap cells span exactly
+    # one window each.
+    x_edges = (np.asarray(timestamps, dtype=float).tolist()
+               + [float(timestamps[-1]) + window_sec])
+    half_w = window_sec / 2.0
 
     for i, role in enumerate(lanes):
-        # Place first role at the top
-        y0 = n_lanes - i - 1
-        y1 = y0 + 1
+        # Lane occupies y in [y0, y0+1]; first role at top
+        y0 = float(n_lanes - i - 1)
+        y_edges = [y0, y0 + 1.0]
+
+        vals = np.asarray(role_props[role], dtype=float)
+        # Binary indicator: NaN treated as not speaking (no data)
+        spoke = (np.where(np.isnan(vals), 0.0, vals) >= speaking_threshold).astype(float)
+
+        # Per-cell hover text
+        hover_text = []
+        for j, v_raw in enumerate(vals):
+            if np.isnan(v_raw):
+                v = 0.0
+                label = '(no data)'
+            else:
+                v = float(v_raw)
+                label = 'Spoke' if v >= speaking_threshold else 'Did not speak'
+            hover_text.append(
+                f"<b>{role}</b><br>"
+                f"Window: {float(timestamps[j]):.0f}s ± {int(half_w)}s<br>"
+                f"{label} ({v:.0%} of {int(window_sec)}s)"
+            )
+
         r, g, b = _hex_to_rgb(role_colors.get(role, '#888'))
-        fill_color = f'rgba({r},{g},{b},0.7)'
-        empty_color = 'rgba(230,230,230,0.4)'
+        empty = 'rgba(230,230,230,0.4)'
+        filled = f'rgba({r},{g},{b},0.7)'
 
-        vals = role_props[role]
-        for j in range(len(timestamps)):
-            x0 = float(timestamps[j])
-            x1 = x0 + window_sec
-            v = float(vals[j]) if not np.isnan(vals[j]) else 0.0
-            spoke = v >= speaking_threshold
-
-            fig.add_shape(
-                type='rect',
-                x0=x0, x1=x1, y0=y0, y1=y1,
-                xref=xref, yref=yref,
-                fillcolor=fill_color if spoke else empty_color,
-                line=dict(width=0.3, color='rgba(255,255,255,0.6)'),
-                layer='below',
-            )
-
-            # Hover marker at cell center
-            fig.add_trace(
-                go.Scatter(
-                    x=[x0 + window_sec / 2], y=[y0 + 0.5],
-                    mode='markers', marker=dict(size=1, opacity=0),
-                    showlegend=False,
-                    hovertemplate=(
-                        f"<b>{role}</b><br>"
-                        f"Window: %{{x:.0f}}s ± {int(window_sec/2)}s<br>"
-                        f"{'Spoke' if spoke else 'Did not speak'}"
-                        f" ({v:.0%} of {int(window_sec)}s)"
-                        "<extra></extra>"
-                    ),
-                ),
-                row=row, col=col,
-            )
+        fig.add_trace(
+            go.Heatmap(
+                x=x_edges,
+                y=y_edges,
+                z=[spoke.tolist()],
+                text=[hover_text],
+                hovertemplate='%{text}<extra></extra>',
+                colorscale=[[0.0, empty], [1.0, filled]],
+                zmin=0.0, zmax=1.0,
+                showscale=False,
+                xgap=0,
+                ygap=2,
+            ),
+            row=row, col=col,
+        )
 
     # Y-axis labels = role IDs
     yaxis_key = f'yaxis{row}' if row > 1 else 'yaxis'
