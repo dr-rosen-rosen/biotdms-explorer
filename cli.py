@@ -9,12 +9,14 @@ Usage:
   # Process raw merged CSVs into session parquets
   python cli.py --raw-dir /path/to/DCE_data --output-dir data/processed_sessions
 
-  # Also install entropy/AMI CSV(s) and subtask lookup table(s)
+  # Also install entropy/AMI CSV(s), subtask lookup table(s), and
+  # communication (zoom_timeseries) directories
   python cli.py --raw-dir /path/to/DCE_data --output-dir data/processed_sessions \\
       --data-dir data/ \\
       --entropy /path/to/team_entropy_ami_DCE2.csv \\
       --entropy /path/to/team_entropy_ami_DCE3.csv \\
-      --subtask /path/to/SubTask_LookupTable_DCE3.xlsx
+      --subtask /path/to/SubTask_LookupTable_DCE3.xlsx \\
+      --com-dir /path/to/DCE3_zoom_timeseries/
 
   # Force reprocessing of all sessions (even if parquets exist)
   python cli.py --raw-dir /path/to/DCE_data --output-dir data/processed_sessions --force
@@ -44,6 +46,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from core.data_ingest import (
     ingest_sessions,
     install_entropy_csv,
+    install_speaking_dir,
     install_subtask_excel,
     rebuild_index,
 )
@@ -104,6 +107,19 @@ def build_parser() -> argparse.ArgumentParser:
             "Files are copied preserving their original filenames."
         ),
     )
+    parser.add_argument(
+        "--com-dir",
+        type=Path,
+        action="append",
+        default=[],
+        metavar="DIR",
+        help=(
+            "Path to a directory of communication (zoom_timeseries) CSVs to "
+            "install. All files matching zoom_timeseries_*.csv are copied "
+            "into <data-dir>/com_timeseries/. Non-matching CSVs in the source "
+            "are skipped and logged. Repeatable for multiple DCEs."
+        ),
+    )
 
     # Flags
     parser.add_argument(
@@ -147,6 +163,12 @@ def validate_args(args) -> list:
         elif f.suffix.lower() not in ('.xlsx', '.xls'):
             errors.append(f"Subtask file is not an Excel file: {f}")
 
+    for d in args.com_dir:
+        if not d.exists():
+            errors.append(f"Communication source directory not found: {d}")
+        elif not d.is_dir():
+            errors.append(f"Communication source path is not a directory: {d}")
+
     return errors
 
 
@@ -173,6 +195,8 @@ def run(args) -> int:
             print(f"Entropy:    {', '.join(str(f) for f in args.entropy)}")
         if args.subtask:
             print(f"Subtask:    {', '.join(str(f) for f in args.subtask)}")
+        if args.com_dir:
+            print(f"Com dirs:   {', '.join(str(d) for d in args.com_dir)}")
         if args.force:
             print(f"Mode:       FORCE (reprocessing all)")
         print()
@@ -209,6 +233,24 @@ def run(args) -> int:
         else:
             report.errors.append(f"Failed to install subtask table: {subtask_file}")
             had_errors = True
+
+    # ── Install communication (zoom_timeseries) files ───────────────
+    for com_dir in args.com_dir:
+        n_copied, com_errs = install_speaking_dir(com_dir, args.data_dir)
+        if n_copied:
+            report.details.append(
+                f"Communication files installed from {com_dir.name}: {n_copied} zoom_timeseries CSVs"
+            )
+            if not args.quiet:
+                print(f"  Installed communication: {n_copied} files from {com_dir} -> {args.data_dir}/com_timeseries/")
+        for err in com_errs:
+            report.errors.append(err)
+            had_errors = True
+        if not n_copied and not com_errs:
+            msg = f"No zoom_timeseries_*.csv files found in {com_dir}"
+            report.details.append(msg)
+            if not args.quiet:
+                print(f"  WARNING: {msg}")
 
     # ── Summary ─────────────────────────────────────────────────────
     print()

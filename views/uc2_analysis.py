@@ -1390,10 +1390,17 @@ def _build_plot(
         subplot_titles: List[str] = []
         if show_speaking:
             row_heights.append(speaking_height / total_height)
+            ws = float(speaking_overlay_data.get('window_sec', 60.0)) if speaking_overlay_data else 60.0
+            if ws == 60.0:
+                unit = 'minute'
+            elif ws == int(ws):
+                unit = f'{int(ws)}s'
+            else:
+                unit = f'{ws:g}s'
             label = {
-                'stacked': 'Speaking proportion (per role, per minute)',
-                'heat': 'Dominant speaker (per minute)',
-                'lanes': 'Spoke / did not speak (per role, per minute)',
+                'stacked': f'Speaking proportion (per role, per {unit})',
+                'heat': f'Dominant speaker (per {unit})',
+                'lanes': f'Spoke / did not speak (per role, per {unit})',
             }.get(speaking_overlay_mode, 'Speaking activity')
             subplot_titles.append(label)
         row_heights.append(signal_height / total_height)

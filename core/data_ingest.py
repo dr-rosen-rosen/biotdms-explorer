@@ -392,3 +392,44 @@ def install_subtask_excel(source_path: Path, data_dir: Path) -> bool:
     Returns True if successful.
     """
     return install_data_file(source_path, data_dir)
+
+
+def install_speaking_dir(source_dir: Path, data_dir: Path) -> Tuple[int, List[str]]:
+    """Copy zoom_timeseries_*.csv files from `source_dir` into the app's
+    `com_timeseries` subdirectory.
+
+    The SpeakingLoader globs for `data/com_timeseries/zoom_timeseries_*.csv`,
+    so any non-zoom_timeseries CSVs in `source_dir` are skipped (and logged).
+
+    Returns:
+        (n_copied, errors) — count of files copied and a list of error messages.
+    """
+    errors: List[str] = []
+    if not source_dir.exists() or not source_dir.is_dir():
+        errors.append(f"Speaking source dir not found or not a directory: {source_dir}")
+        return 0, errors
+
+    target = data_dir / 'com_timeseries'
+    target.mkdir(parents=True, exist_ok=True)
+
+    n_copied = 0
+    for path in sorted(source_dir.glob('zoom_timeseries_*.csv')):
+        try:
+            shutil.copy2(path, target / path.name)
+            n_copied += 1
+            logger.info(f"Installed speaking file: {path.name} -> {target}/")
+        except Exception as e:
+            err = f"Failed to copy {path.name}: {e}"
+            errors.append(err)
+            logger.error(err)
+
+    # Tally non-matching CSVs for visibility
+    skipped = [p.name for p in source_dir.glob('*.csv')
+               if not p.name.startswith('zoom_timeseries_')]
+    if skipped:
+        logger.info(
+            f"Skipped {len(skipped)} non-zoom_timeseries CSVs in {source_dir}: "
+            f"{', '.join(skipped[:5])}" + ('...' if len(skipped) > 5 else '')
+        )
+
+    return n_copied, errors
