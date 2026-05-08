@@ -20,6 +20,7 @@ data/team_entropy_ami*.csv
 data/SubTask_LookupTable*.xlsx
 data/subtask*.xlsx
 data/raw/
+data/com_timeseries/
 
 # Keep directory structure and knowledge graph
 !data/knowledge_graph/instances.ttl
@@ -44,3 +45,7 @@ Thumbs.db
 
 # Jupyter
 .ipynb_checkpoints/
+Untitled*.ipynb
+
+# Claude Code session data + agent worktrees (local only, never pushed)
+.claude/
