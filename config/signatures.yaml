@@ -80,7 +80,7 @@ _config:
       # a fixed amount; default 0 means each file's last sample IS session-end.
       subdir: "com_timeseries"
       target_hz: 1.0
-      overlay_window_sec: 60.0
+      overlay_window_sec: 10.0
       role_offsets_sec:
         FOA: 0.0
         FOM: 0.0
