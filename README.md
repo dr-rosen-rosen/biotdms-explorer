@@ -70,7 +70,9 @@ biotdms-explorer/
 │   │   └── DCE{N}/
 │   │       └── Team{N}_{Day}_{Session}.parquet
 │   ├── team_entropy_ami_*.csv      # Entropy/AMI data, one per DCE (optional)
-│   └── SubTask_LookupTable_*.xlsx  # Subtask lookup tables, one per DCE (optional)
+│   ├── SubTask_LookupTable_*.xlsx  # Subtask lookup tables, one per DCE (optional)
+│   └── com_timeseries/             # Speaking-activity CSVs (optional)
+│       └── zoom_timeseries_Team{N}Day{N}Session{N}{Role}.csv
 │
 ├── etl/                            # ETL scripts (run manually)
 │   └── etl_excel_to_ttl.py         # Excel ontology coding → TTL
@@ -102,6 +104,8 @@ There are two ways to ingest session data: the in-app **Data Management** panel 
 
 The panel runs the same ingestion logic as the CLI: it converts raw merged CSVs into session parquets under `data/processed_sessions/`, copies entropy/AMI files into `data/` (preserving per-DCE filenames), and copies subtask lookup tables into `data/` (also preserving per-DCE filenames).
 
+Note: the panel does **not** currently handle communication (`zoom_timeseries`) data — see "Communication (speaking) data" below for either CLI-driven or manual installation.
+
 #### Option B — CLI (notebook-driven)
 
 The pipeline is exposed as `cli.py` at the project root for use from analysis notebooks via `os.system()` or `subprocess`:
@@ -111,15 +115,37 @@ uv run python cli.py \
   --raw-dir /path/to/raw/data \
   --output-dir data/processed_sessions \
   --data-dir data \
-  --entropy /path/to/team_entropy_ami_DCE2.csv \
-  --subtask /path/to/SubTask_LookupTable_DCE2.xlsx
+  --entropy /path/to/team_entropy_ami_DCE3.csv \
+  --subtask /path/to/SubTask_LookupTable_DCE3.xlsx \
+  --com-dir /path/to/DCE3_zoom_timeseries/
 ```
 
-`--entropy` and `--subtask` are repeatable to install multiple per-DCE files in a single call. Additional flags: `--force` (reprocess existing parquets), `--quiet` (summary only), `--rebuild-index-only`.
+`--entropy`, `--subtask`, and `--com-dir` are all repeatable for installing multiple per-DCE inputs in a single call. Additional flags: `--force` (reprocess existing parquets), `--quiet` (summary only), `--rebuild-index-only` (skip ingestion and just rebuild `sessions_index.parquet` from existing session parquets).
 
-**Filename convention:** entropy/AMI CSVs must match the glob `team_entropy_ami*.csv` (e.g., `team_entropy_ami_DCE2.csv`) for the DataLoader to find them. Files installed under any other name will land in `data/` but won't be picked up.
+**Filename conventions:**
+- Entropy/AMI CSVs must match `team_entropy_ami*.csv` (e.g., `team_entropy_ami_DCE2.csv`) — files installed under other names will land in `data/` but won't be picked up by the DataLoader.
+- Subtask lookup tables: `SubTask_LookupTable_*.xlsx` (one per DCE).
+- Speaking files inside a `--com-dir` source must match `zoom_timeseries_Team{N}Day{N}Session{N}{Role}.csv` exactly (see "Communication (speaking) data" below). Non-matching CSVs in the source directory are skipped and logged; non-`zoom_timeseries_` formats are ignored entirely.
 
 See `CLI_INTEGRATION_GUIDE.md` for the full handoff doc, including exit codes and the cold-start notebook sequence.
+
+#### Communication (speaking) data
+
+The speaking-activity overlay in UC2 reads `zoom_timeseries_*.csv` files from `data/com_timeseries/`. There is currently no UI control for installing these — they arrive either via `cli.py --com-dir` (above) or by manual placement.
+
+**Manual placement:** copy the files directly into `data/com_timeseries/`. The directory will be created if it doesn't exist.
+
+**Filename format (required):**
+```
+zoom_timeseries_Team{N}Day{N}Session{N}{Role}.csv
+```
+e.g., `zoom_timeseries_Team1Day2Session2FOA.csv`. Files that don't match this exact pattern are silently ignored by the loader.
+
+**CSV format (required):** two columns, `time` and `Talking`.
+- `time` — seconds since that role's recording start (float).
+- `Talking` — binary indicator, 0 or 1.
+
+**Alignment note:** the loader anchors each file's last sample to the entropy session-end and works backwards. Per-role recording start times may vary; recordings that dropped out before session end are NaN-padded at the start of the grid. No timestamp column is required, but the "shared end-time" assumption is structural — coordinate with the data producer if that doesn't hold for a new DCE.
 
 #### Raw data directory structure
 
@@ -184,6 +210,8 @@ uv run streamlit run app.py
 **No sessions appear in UC2** — Use the sidebar Data Management panel (or `cli.py`) to ingest session data, or check that `data/processed_sessions/` contains parquet files
 
 **Entropy data not showing up** — Confirm the file is named to match `team_entropy_ami*.csv` (e.g., `team_entropy_ami_DCE3.csv`). Files with other names (e.g., `entropy_ami_dataset_dce3.csv`) will install but won't be loaded.
+
+**Speaking overlay missing in UC2** — Check that `data/com_timeseries/` contains files matching `zoom_timeseries_Team{N}Day{N}Session{N}{Role}.csv`. The loader silently ignores other filename patterns (including legacy diarization-format CSVs). Run with `--com-dir` and watch the CLI output for an "Installed communication: N files" line, or count files in the directory after manual placement.
 
 **Import errors** — Make sure you're running with `uv run` (not bare `python`/`streamlit`) to use the correct virtual environment
 
