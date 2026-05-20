@@ -3,7 +3,7 @@
 A system for exploring team performance measurement signatures and their evidence base. Built around an RDF/OWL knowledge graph with two primary use cases:
 
 - **UC1 — Design a Measurement Strategy**: Browse constructs, modalities, and techniques to select measurement signatures for team performance assessment
-- **UC2 — Interpret Observed Signatures**: Analyze team physiological and behavioral data with ontology-driven evidence context
+- **UC2 — Interpret Observed Signatures**: Select signatures and teams, then analyze team physiological and behavioral data with ontology-driven evidence context
 
 ## Quick Start
 
@@ -20,7 +20,7 @@ cd biotdms-explorer
 uv sync
 ```
 
-That's it. `uv sync` will install Python 3.12 (if needed) and all dependencies into an isolated virtual environment.
+That's it. `uv sync` will install a compatible Python (3.11 or 3.12) if needed and all dependencies into an isolated virtual environment.
 
 ### Run
 
@@ -35,17 +35,20 @@ The app opens at `http://localhost:8501`.
 ```
 biotdms-explorer/
 ├── app.py                          # Main Streamlit application
+├── cli.py                          # CLI entrypoint for notebook-driven ingestion
 ├── pyproject.toml                  # Dependencies and project metadata
 ├── .python-version                 # Python version (3.12)
 │
 ├── core/                           # Core modules
 │   ├── __init__.py
 │   ├── ontology.py                 # OntologyAccess — SPARQL queries on the KG
+│   ├── ontology_docs.py            # Documentation strings for ontology entities
 │   ├── measure_neighborhood.py     # Generates viz for measure's conceptual relations
-│   ├── measure_neighborhood.py     # Generates viz for measure's conceptual relations
+│   ├── data_ingest.py              # Raw-data ingestion (sessions, entropy, subtask)
 │   ├── data_loader.py              # Unified data loading (entropy/AMI + session physio)
-│   ├── subtask_construct_map.py    # Loads CTA derived teamwork demands for uc2 viz
-│   └── session_loader.py           # Session parquet reader
+│   ├── session_loader.py           # Session parquet reader
+│   ├── speaking_loader.py          # Speaking-turn data loader
+│   └── subtask_construct_map.py    # Loads CTA-derived teamwork demands for UC2 viz
 │
 ├── views/                          # Streamlit view modules
 │   ├── __init__.py
@@ -66,10 +69,11 @@ biotdms-explorer/
 │   │   ├── sessions_index.parquet
 │   │   └── DCE{N}/
 │   │       └── Team{N}_{Day}_{Session}.parquet
-│   └── team_entropy_ami.csv        # Entropy/AMI data (optional)
+│   ├── team_entropy_ami_*.csv      # Entropy/AMI data, one per DCE (optional)
+│   └── SubTask_LookupTable_*.xlsx  # Subtask lookup tables, one per DCE (optional)
 │
 ├── etl/                            # ETL scripts (run manually)
-│   ├── etl_excel_to_ttl.py         # Excel ontology coding → TTL
+│   └── etl_excel_to_ttl.py         # Excel ontology coding → TTL
 │
 └── docs/
     └── DECISIONS_LOG.md            # Ontology normalization decisions
@@ -86,14 +90,41 @@ The `instances.ttl` file must be present. Place it in one of:
 
 ### Optional: Session Data
 
-Use the in-app **Data Management** panel (sidebar) to ingest session data:
+There are two ways to ingest session data: the in-app **Data Management** panel (for interactive use) or the `cli.py` entrypoint (for notebook-driven pipelines).
+
+#### Option A — In-app Data Management panel
 
 1. Click the ⚙️ **Data Settings** expander in the sidebar
-2. Enter the path to your raw data directory (DCE structure)
-3. Optionally enter the path to your entropy/AMI CSV
-4. Click **⚡ Process New Data**
+2. Enter the path to your raw data directory (DCE structure — see below)
+3. Optionally enter the path to one or more per-DCE entropy/AMI CSV files
+4. Optionally enter the path to one or more per-DCE subtask lookup tables (`SubTask_LookupTable_*.xlsx`)
+5. Click **⚡ Process New Data**
 
-The app expects raw data in this directory structure:
+The panel runs the same ingestion logic as the CLI: it converts raw merged CSVs into session parquets under `data/processed_sessions/`, copies entropy/AMI files into `data/` (preserving per-DCE filenames), and copies subtask lookup tables into `data/` (also preserving per-DCE filenames).
+
+#### Option B — CLI (notebook-driven)
+
+The pipeline is exposed as `cli.py` at the project root for use from analysis notebooks via `os.system()` or `subprocess`:
+
+```bash
+uv run python cli.py \
+  --raw-dir /path/to/raw/data \
+  --output-dir data/processed_sessions \
+  --data-dir data \
+  --entropy /path/to/team_entropy_ami_DCE2.csv \
+  --subtask /path/to/SubTask_LookupTable_DCE2.xlsx
+```
+
+`--entropy` and `--subtask` are repeatable to install multiple per-DCE files in a single call. Additional flags: `--force` (reprocess existing parquets), `--quiet` (summary only), `--rebuild-index-only`.
+
+**Filename convention:** entropy/AMI CSVs must match the glob `team_entropy_ami*.csv` (e.g., `team_entropy_ami_DCE2.csv`) for the DataLoader to find them. Files installed under any other name will land in `data/` but won't be picked up.
+
+See `CLI_INTEGRATION_GUIDE.md` for the full handoff doc, including exit codes and the cold-start notebook sequence.
+
+#### Raw data directory structure
+
+Both ingestion paths expect raw data in this structure:
+
 ```
 {raw_root}/
   DCE{N}/
@@ -102,17 +133,6 @@ The app expects raw data in this directory structure:
         {Role}_Subj{NNN}/
           merged/
             merged_Day{N}_Session{N}_{Role}_Subj{NNN}_1hz.csv
-```
-
-The ingestion pipeline converts these to session parquets and places them in `data/processed_sessions/`.
-
-### Manual Data Processing (Alternative)
-
-```bash
-uv run python etl/process_merged_sessions.py \
-  --root /path/to/raw/data \
-  --output data/processed_sessions \
-  --skip-existing --verbose
 ```
 
 ## Ontology ETL
@@ -128,6 +148,8 @@ uv run python etl/etl_excel_to_ttl.py \
   --out-ttl data/ontologies/instances.ttl
 ```
 
+Optional `--merge` flag also writes a `merged_instances.ttl` next to `--out-ttl` combining old + new instances. A `<out-ttl>.report.json` summary is written alongside the output TTL automatically.
+
 ## Configuration
 
 ### `config/signatures.yaml`
@@ -138,17 +160,17 @@ Defines the measurement signatures available in UC2. Each signature specifies:
 - Visualization settings
 - Ontology linkage (construct, modality, technique)
 
-### `config.yaml` (optional)
+### `config/subtask_constructs.yaml`
 
-Application-level settings for data paths and embedding paths.
+CTA-derived mappings from subtasks to construct weights, used to drive the construct×subtask heatmap and subtask-overlay views in UC2.
 
 ## Development
 
 ```bash
-# Install with dev dependencies
-uv sync --dev
+# Install with dev dependencies (pytest, ipython, jupyter)
+uv sync --group dev
 
-# Run tests
+# Run tests (if/when added)
 uv run pytest
 
 # Run with auto-reload (Streamlit default)
@@ -159,7 +181,9 @@ uv run streamlit run app.py
 
 **"Could not find instances.ttl"** — Place your ontology file in `data/ontologies/instances.ttl`
 
-**No sessions appear in UC2** — Use the sidebar Data Management panel to ingest session data, or check that `data/processed_sessions/` contains parquet files
+**No sessions appear in UC2** — Use the sidebar Data Management panel (or `cli.py`) to ingest session data, or check that `data/processed_sessions/` contains parquet files
+
+**Entropy data not showing up** — Confirm the file is named to match `team_entropy_ami*.csv` (e.g., `team_entropy_ami_DCE3.csv`). Files with other names (e.g., `entropy_ami_dataset_dce3.csv`) will install but won't be loaded.
 
 **Import errors** — Make sure you're running with `uv run` (not bare `python`/`streamlit`) to use the correct virtual environment
 

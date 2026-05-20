@@ -1,0 +1,350 @@
+_:genid1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Ontology> .
+# 
+# 
+# #################################################################
+# #
+# #    Object Properties
+# #
+# #################################################################
+# 
+# 
+# http://example.org/ontology/teamMeasurement#hasLevelOfAnalysis
+<http://example.org/ontology/teamMeasurement#hasLevelOfAnalysis> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<http://example.org/ontology/teamMeasurement#hasLevelOfAnalysis> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://example.org/ontology/teamMeasurement#usesMethod> .
+<http://example.org/ontology/teamMeasurement#hasLevelOfAnalysis> <http://www.w3.org/2000/01/rdf-schema#domain> <http://example.org/ontology/teamMeasurement#Measure> .
+<http://example.org/ontology/teamMeasurement#hasLevelOfAnalysis> <http://www.w3.org/2000/01/rdf-schema#range> <http://example.org/ontology/teamMeasurement#levelOfAnalysis> .
+<http://example.org/ontology/teamMeasurement#hasLevelOfAnalysis> <http://www.w3.org/2000/01/rdf-schema#comment> "Specifies whether the measure is team-level, individual-level, etc." .
+<http://example.org/ontology/teamMeasurement#hasLevelOfAnalysis> <http://www.w3.org/2000/01/rdf-schema#label> "has level of analysis" .
+# 
+# http://example.org/ontology/teamMeasurement#includesModality
+<http://example.org/ontology/teamMeasurement#includesModality> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<http://example.org/ontology/teamMeasurement#includesModality> <http://www.w3.org/2000/01/rdf-schema#domain> <http://example.org/ontology/teamMeasurement#Measure> .
+<http://example.org/ontology/teamMeasurement#includesModality> <http://www.w3.org/2000/01/rdf-schema#range> <http://example.org/ontology/teamMeasurement#Modality> .
+<http://example.org/ontology/teamMeasurement#includesModality> <http://www.w3.org/2000/01/rdf-schema#comment> "Indicates the source modality or signal the measure relies on." .
+<http://example.org/ontology/teamMeasurement#includesModality> <http://www.w3.org/2000/01/rdf-schema#label> "includes modality" .
+# 
+# http://example.org/ontology/teamMeasurement#manipulatesConstruct
+<http://example.org/ontology/teamMeasurement#manipulatesConstruct> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<http://example.org/ontology/teamMeasurement#manipulatesConstruct> <http://www.w3.org/2000/01/rdf-schema#domain> <http://example.org/ontology/teamMeasurement#Manipulation> .
+<http://example.org/ontology/teamMeasurement#manipulatesConstruct> <http://www.w3.org/2000/01/rdf-schema#range> <http://example.org/ontology/teamMeasurement#Construct> .
+<http://example.org/ontology/teamMeasurement#manipulatesConstruct> <http://www.w3.org/2000/01/rdf-schema#comment> "Relates a manipulation to the construct it intends to manipulate." .
+<http://example.org/ontology/teamMeasurement#manipulatesConstruct> <http://www.w3.org/2000/01/rdf-schema#label> "manipulates construct" .
+# 
+# http://example.org/ontology/teamMeasurement#measuresConstruct
+<http://example.org/ontology/teamMeasurement#measuresConstruct> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<http://example.org/ontology/teamMeasurement#measuresConstruct> <http://www.w3.org/2000/01/rdf-schema#domain> <http://example.org/ontology/teamMeasurement#Measure> .
+<http://example.org/ontology/teamMeasurement#measuresConstruct> <http://www.w3.org/2000/01/rdf-schema#range> <http://example.org/ontology/teamMeasurement#Construct> .
+<http://example.org/ontology/teamMeasurement#measuresConstruct> <http://www.w3.org/2000/01/rdf-schema#comment> "Relates a measure to the construct it captures." .
+<http://example.org/ontology/teamMeasurement#measuresConstruct> <http://www.w3.org/2000/01/rdf-schema#label> "measures construct" .
+# 
+# http://example.org/ontology/teamMeasurement#usesAnalyticTechnique
+<http://example.org/ontology/teamMeasurement#usesAnalyticTechnique> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<http://example.org/ontology/teamMeasurement#usesAnalyticTechnique> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://example.org/ontology/teamMeasurement#usesMethod> .
+<http://example.org/ontology/teamMeasurement#usesAnalyticTechnique> <http://www.w3.org/2000/01/rdf-schema#domain> <http://example.org/ontology/teamMeasurement#Measure> .
+<http://example.org/ontology/teamMeasurement#usesAnalyticTechnique> <http://www.w3.org/2000/01/rdf-schema#range> <http://example.org/ontology/teamMeasurement#analyticTechnique> .
+<http://example.org/ontology/teamMeasurement#usesAnalyticTechnique> <http://www.w3.org/2000/01/rdf-schema#comment> "Specifies the analytic approach used to compute the measure." .
+<http://example.org/ontology/teamMeasurement#usesAnalyticTechnique> <http://www.w3.org/2000/01/rdf-schema#label> "uses analytic technique" .
+# 
+# http://example.org/ontology/teamMeasurement#usesMethod
+<http://example.org/ontology/teamMeasurement#usesMethod> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<http://example.org/ontology/teamMeasurement#usesMethod> <http://www.w3.org/2000/01/rdf-schema#domain> <http://example.org/ontology/teamMeasurement#Measure> .
+<http://example.org/ontology/teamMeasurement#usesMethod> <http://www.w3.org/2000/01/rdf-schema#range> <http://example.org/ontology/teamMeasurement#Method> .
+<http://example.org/ontology/teamMeasurement#usesMethod> <http://www.w3.org/2000/01/rdf-schema#comment> "Specifies approach used to compute or derive the measure." .
+<http://example.org/ontology/teamMeasurement#usesMethod> <http://www.w3.org/2000/01/rdf-schema#label> "uses method" .
+# 
+# 
+# 
+# #################################################################
+# #
+# #    Data properties
+# #
+# #################################################################
+# 
+# 
+# http://example.org/ontology/teamMeasurement#hasDescription
+<http://example.org/ontology/teamMeasurement#hasDescription> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<http://example.org/ontology/teamMeasurement#hasDescription> <http://www.w3.org/2000/01/rdf-schema#domain> _:genid2 .
+_:genid2 <http://www.w3.org/2002/07/owl#unionOf> _:genid4 .
+_:genid4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:genid3 .
+_:genid3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+_:genid3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://example.org/ontology/teamMeasurement#Measure> .
+_:genid3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+_:genid4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://example.org/ontology/teamMeasurement#Manipulation> .
+_:genid4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+_:genid2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#hasDescription> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<http://example.org/ontology/teamMeasurement#hasDescription> <http://www.w3.org/2000/01/rdf-schema#comment> "description of what the measure is" .
+<http://example.org/ontology/teamMeasurement#hasDescription> <http://www.w3.org/2000/01/rdf-schema#label> "has description" .
+# 
+# http://example.org/ontology/teamMeasurement#hasInterpretation
+<http://example.org/ontology/teamMeasurement#hasInterpretation> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<http://example.org/ontology/teamMeasurement#hasInterpretation> <http://www.w3.org/2000/01/rdf-schema#domain> <http://example.org/ontology/teamMeasurement#Measure> .
+<http://example.org/ontology/teamMeasurement#hasInterpretation> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<http://example.org/ontology/teamMeasurement#hasInterpretation> <http://www.w3.org/2000/01/rdf-schema#comment> "description of how increasing or decreasing values of the scale are interpreted" .
+<http://example.org/ontology/teamMeasurement#hasInterpretation> <http://www.w3.org/2000/01/rdf-schema#label> "has interpretation" .
+# 
+# http://example.org/ontology/teamMeasurement#hasName
+<http://example.org/ontology/teamMeasurement#hasName> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<http://example.org/ontology/teamMeasurement#hasName> <http://www.w3.org/2000/01/rdf-schema#domain> _:genid5 .
+_:genid5 <http://www.w3.org/2002/07/owl#unionOf> _:genid7 .
+_:genid7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:genid6 .
+_:genid6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+_:genid6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://example.org/ontology/teamMeasurement#Measure> .
+_:genid6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+_:genid7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> <http://example.org/ontology/teamMeasurement#Manipulation> .
+_:genid7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#List> .
+_:genid5 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#hasName> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<http://example.org/ontology/teamMeasurement#hasName> <http://www.w3.org/2000/01/rdf-schema#comment> "name of measure" .
+<http://example.org/ontology/teamMeasurement#hasName> <http://www.w3.org/2000/01/rdf-schema#label> "has name" .
+# 
+# http://example.org/ontology/teamMeasurement#hasScale
+<http://example.org/ontology/teamMeasurement#hasScale> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#DatatypeProperty> .
+<http://example.org/ontology/teamMeasurement#hasScale> <http://www.w3.org/2000/01/rdf-schema#domain> <http://example.org/ontology/teamMeasurement#Measure> .
+<http://example.org/ontology/teamMeasurement#hasScale> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<http://example.org/ontology/teamMeasurement#hasScale> <http://www.w3.org/2000/01/rdf-schema#comment> "describes the scale used including type and range" .
+<http://example.org/ontology/teamMeasurement#hasScale> <http://www.w3.org/2000/01/rdf-schema#label> "has scale" .
+# 
+# 
+# 
+# #################################################################
+# #
+# #    Classes
+# #
+# #################################################################
+# 
+# 
+# http://example.org/ontology/teamMeasurement#CNS
+<http://example.org/ontology/teamMeasurement#CNS> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#CNS> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#physiology> .
+# 
+# http://example.org/ontology/teamMeasurement#CRQA
+<http://example.org/ontology/teamMeasurement#CRQA> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#CRQA> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#informationTheoretic> .
+# 
+# http://example.org/ontology/teamMeasurement#Construct
+<http://example.org/ontology/teamMeasurement#Construct> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+# 
+# http://example.org/ontology/teamMeasurement#Lexical
+<http://example.org/ontology/teamMeasurement#Lexical> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#Lexical> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#communicationContent> .
+<http://example.org/ontology/teamMeasurement#Lexical> <http://www.w3.org/2000/01/rdf-schema#comment> "Measured derived from an anlysis of the specific words used during communication (e.g., mirroring word choice)" .
+# 
+# http://example.org/ontology/teamMeasurement#Manipulation
+<http://example.org/ontology/teamMeasurement#Manipulation> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#Manipulation> <http://www.w3.org/2000/01/rdf-schema#comment> "An experimental manipulation or intervention used as an independent variable" .
+<http://example.org/ontology/teamMeasurement#Manipulation> <http://www.w3.org/2000/01/rdf-schema#label> "experimental manipulation" .
+# 
+# http://example.org/ontology/teamMeasurement#Measure
+<http://example.org/ontology/teamMeasurement#Measure> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+# 
+# http://example.org/ontology/teamMeasurement#Method
+<http://example.org/ontology/teamMeasurement#Method> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+# 
+# http://example.org/ontology/teamMeasurement#Modality
+<http://example.org/ontology/teamMeasurement#Modality> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+# 
+# http://example.org/ontology/teamMeasurement#PNS
+<http://example.org/ontology/teamMeasurement#PNS> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#PNS> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#physiology> .
+# 
+# http://example.org/ontology/teamMeasurement#activityTracking
+<http://example.org/ontology/teamMeasurement#activityTracking> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#activityTracking> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#behavior> .
+<http://example.org/ontology/teamMeasurement#activityTracking> <http://www.w3.org/2000/01/rdf-schema#comment> "Measures derived from task performance processes (e.g., button pushes, activity tracking, mouse movement)" .
+# 
+# http://example.org/ontology/teamMeasurement#analyticTechnique
+<http://example.org/ontology/teamMeasurement#analyticTechnique> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#analyticTechnique> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Method> .
+# 
+# http://example.org/ontology/teamMeasurement#autonomic
+<http://example.org/ontology/teamMeasurement#autonomic> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#autonomic> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#PNS> .
+# 
+# http://example.org/ontology/teamMeasurement#behavior
+<http://example.org/ontology/teamMeasurement#behavior> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#behavior> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Modality> .
+# 
+# http://example.org/ontology/teamMeasurement#cardiovascular
+<http://example.org/ontology/teamMeasurement#cardiovascular> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#cardiovascular> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#sympathetic> .
+# 
+# http://example.org/ontology/teamMeasurement#cognition
+<http://example.org/ontology/teamMeasurement#cognition> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#cognition> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Construct> .
+# 
+# http://example.org/ontology/teamMeasurement#cognitiveLoad
+<http://example.org/ontology/teamMeasurement#cognitiveLoad> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#cognitiveLoad> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Construct> .
+# 
+# http://example.org/ontology/teamMeasurement#cohesion
+<http://example.org/ontology/teamMeasurement#cohesion> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#cohesion> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Construct> .
+# 
+# http://example.org/ontology/teamMeasurement#communication
+<http://example.org/ontology/teamMeasurement#communication> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#communication> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Modality> .
+# 
+# http://example.org/ontology/teamMeasurement#communicationContent
+<http://example.org/ontology/teamMeasurement#communicationContent> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#communicationContent> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#communication> .
+<http://example.org/ontology/teamMeasurement#communicationContent> <http://www.w3.org/2000/01/rdf-schema#comment> "Measures derived from an anlaysis of the words used in communicating amonst team members aggregated over time (e.g., to the performance phase or episode level)" .
+# 
+# http://example.org/ontology/teamMeasurement#communicationFlow
+<http://example.org/ontology/teamMeasurement#communicationFlow> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#communicationFlow> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#communication> .
+<http://example.org/ontology/teamMeasurement#communicationFlow> <http://www.w3.org/2000/01/rdf-schema#comment> "Communication measures derived from temporal dimensions of communicaiton (duration, exchange sequence)" .
+# 
+# http://example.org/ontology/teamMeasurement#conflict
+<http://example.org/ontology/teamMeasurement#conflict> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#conflict> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Construct> .
+# 
+# http://example.org/ontology/teamMeasurement#coordination
+<http://example.org/ontology/teamMeasurement#coordination> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#coordination> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Construct> .
+# 
+# http://example.org/ontology/teamMeasurement#crossLevel
+<http://example.org/ontology/teamMeasurement#crossLevel> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#crossLevel> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#levelOfAnalysis> .
+# 
+# http://example.org/ontology/teamMeasurement#decisionMaking
+<http://example.org/ontology/teamMeasurement#decisionMaking> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#decisionMaking> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Construct> .
+# 
+# http://example.org/ontology/teamMeasurement#dyad
+<http://example.org/ontology/teamMeasurement#dyad> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#dyad> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#levelOfAnalysis> .
+# 
+# http://example.org/ontology/teamMeasurement#electrodermal
+<http://example.org/ontology/teamMeasurement#electrodermal> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#electrodermal> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#sympathetic> .
+# 
+# http://example.org/ontology/teamMeasurement#engagementCommitment
+<http://example.org/ontology/teamMeasurement#engagementCommitment> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#engagementCommitment> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Construct> .
+# 
+# http://example.org/ontology/teamMeasurement#eyeMovement
+<http://example.org/ontology/teamMeasurement#eyeMovement> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#eyeMovement> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#behavior> .
+<http://example.org/ontology/teamMeasurement#eyeMovement> <http://www.w3.org/2000/01/rdf-schema#comment> "Behavioral measures derived from eye tracking and pupliometery" .
+<http://example.org/ontology/teamMeasurement#eyeMovement> <http://www.w3.org/2000/01/rdf-schema#label> "eye movement" .
+# 
+# http://example.org/ontology/teamMeasurement#gesture
+<http://example.org/ontology/teamMeasurement#gesture> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#gesture> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#behavior> .
+<http://example.org/ontology/teamMeasurement#gesture> <http://www.w3.org/2000/01/rdf-schema#comment> "Behavioral measures derived from an analyticTechnique of physical para-linguistic communication (e.g., hand gestures)" .
+# 
+# http://example.org/ontology/teamMeasurement#individual
+<http://example.org/ontology/teamMeasurement#individual> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#individual> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#levelOfAnalysis> .
+# 
+# http://example.org/ontology/teamMeasurement#informationTheoretic
+<http://example.org/ontology/teamMeasurement#informationTheoretic> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#informationTheoretic> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#analyticTechnique> .
+# 
+# http://example.org/ontology/teamMeasurement#levelOfAnalysis
+<http://example.org/ontology/teamMeasurement#levelOfAnalysis> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#levelOfAnalysis> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Method> .
+# 
+# http://example.org/ontology/teamMeasurement#networkAnalysis
+<http://example.org/ontology/teamMeasurement#networkAnalysis> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#networkAnalysis> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#analyticTechnique> .
+# 
+# http://example.org/ontology/teamMeasurement#observation
+<http://example.org/ontology/teamMeasurement#observation> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#observation> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Modality> .
+<http://example.org/ontology/teamMeasurement#observation> <http://www.w3.org/2000/01/rdf-schema#comment> "Measures generated by external obervers such as trainers, evaluators and assessors, or researchers" .
+# 
+# http://example.org/ontology/teamMeasurement#parasympathetic
+<http://example.org/ontology/teamMeasurement#parasympathetic> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#parasympathetic> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#autonomic> .
+# 
+# http://example.org/ontology/teamMeasurement#physicalMovement
+<http://example.org/ontology/teamMeasurement#physicalMovement> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#physicalMovement> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#behavior> .
+<http://example.org/ontology/teamMeasurement#physicalMovement> <http://www.w3.org/2000/01/rdf-schema#comment> "Behavioral measures derived from the physical movement of team members (e.g., postural sway, patterns of co-locatoin)" .
+# 
+# http://example.org/ontology/teamMeasurement#physiology
+<http://example.org/ontology/teamMeasurement#physiology> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#physiology> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Modality> .
+<http://example.org/ontology/teamMeasurement#physiology> <http://www.w3.org/2000/01/rdf-schema#label> "Measures generated from physiological monitoring of team members" .
+# 
+# http://example.org/ontology/teamMeasurement#problemSolving
+<http://example.org/ontology/teamMeasurement#problemSolving> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#problemSolving> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Construct> .
+# 
+# http://example.org/ontology/teamMeasurement#resilience
+<http://example.org/ontology/teamMeasurement#resilience> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#resilience> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Construct> .
+# 
+# http://example.org/ontology/teamMeasurement#satisfaction
+<http://example.org/ontology/teamMeasurement#satisfaction> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#satisfaction> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Construct> .
+# 
+# http://example.org/ontology/teamMeasurement#semantic
+<http://example.org/ontology/teamMeasurement#semantic> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#semantic> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#communicationContent> .
+<http://example.org/ontology/teamMeasurement#semantic> <http://www.w3.org/2000/01/rdf-schema#comment> "Measures derived from an anlaysis of word meanings inlcuding semantic similarity or other methods using embeddings or classical content coding schemes" .
+# 
+# http://example.org/ontology/teamMeasurement#sharedMentalModel
+<http://example.org/ontology/teamMeasurement#sharedMentalModel> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#sharedMentalModel> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Construct> .
+# 
+# http://example.org/ontology/teamMeasurement#simpleAggregation
+<http://example.org/ontology/teamMeasurement#simpleAggregation> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#simpleAggregation> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#analyticTechnique> .
+<http://example.org/ontology/teamMeasurement#simpleAggregation> <http://www.w3.org/2000/01/rdf-schema#comment> "Techniques characterizig mean levels and variances" .
+# 
+# http://example.org/ontology/teamMeasurement#situationalAwareness
+<http://example.org/ontology/teamMeasurement#situationalAwareness> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#situationalAwareness> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Construct> .
+# 
+# http://example.org/ontology/teamMeasurement#somatic
+<http://example.org/ontology/teamMeasurement#somatic> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#somatic> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#PNS> .
+# 
+# http://example.org/ontology/teamMeasurement#stress
+<http://example.org/ontology/teamMeasurement#stress> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#stress> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Construct> .
+# 
+# http://example.org/ontology/teamMeasurement#survey
+<http://example.org/ontology/teamMeasurement#survey> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#survey> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Modality> .
+<http://example.org/ontology/teamMeasurement#survey> <http://www.w3.org/2000/01/rdf-schema#comment> "Measures generated through self-report of individuals, which may or may not be aggregated to the team level" .
+# 
+# http://example.org/ontology/teamMeasurement#sympathetic
+<http://example.org/ontology/teamMeasurement#sympathetic> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#sympathetic> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#autonomic> .
+# 
+# http://example.org/ontology/teamMeasurement#synchrony
+<http://example.org/ontology/teamMeasurement#synchrony> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#synchrony> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#analyticTechnique> .
+<http://example.org/ontology/teamMeasurement#synchrony> <http://www.w3.org/2000/01/rdf-schema#comment> "Measure capturing mutual influence " .
+<http://example.org/ontology/teamMeasurement#synchrony> <http://www.w3.org/2000/01/rdf-schema#label> "syncrhony" .
+# 
+# http://example.org/ontology/teamMeasurement#syntactic
+<http://example.org/ontology/teamMeasurement#syntactic> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#syntactic> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#communicationContent> .
+<http://example.org/ontology/teamMeasurement#syntactic> <http://www.w3.org/2000/01/rdf-schema#comment> "Measures derived from part of speach use including sytle matching, pronoun use, and verb tense analyses." .
+# 
+# http://example.org/ontology/teamMeasurement#taskType
+<http://example.org/ontology/teamMeasurement#taskType> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#taskType> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Construct> .
+# 
+# http://example.org/ontology/teamMeasurement#team
+<http://example.org/ontology/teamMeasurement#team> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#team> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#levelOfAnalysis> .
+# 
+# http://example.org/ontology/teamMeasurement#teamFamiliarity
+<http://example.org/ontology/teamMeasurement#teamFamiliarity> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#teamFamiliarity> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Construct> .
+# 
+# http://example.org/ontology/teamMeasurement#teamPerformance
+<http://example.org/ontology/teamMeasurement#teamPerformance> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#teamPerformance> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Construct> .
+# 
+# http://example.org/ontology/teamMeasurement#teamSize
+<http://example.org/ontology/teamMeasurement#teamSize> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+<http://example.org/ontology/teamMeasurement#teamSize> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/ontology/teamMeasurement#Construct> .
+# 
+# Generated by the OWL API (version 5.1.18) https://github.com/owlcs/owlapi/

@@ -1,0 +1,692 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://www.w3.org/2002/07/owl"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <Ontology/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#hasLevelOfAnalysis -->
+
+
+    <ObjectProperty rdf:about="http://example.org/ontology/teamMeasurement#hasLevelOfAnalysis">
+        <rdfs:subPropertyOf rdf:resource="http://example.org/ontology/teamMeasurement#usesMethod"/>
+        <rdfs:domain rdf:resource="http://example.org/ontology/teamMeasurement#Measure"/>
+        <rdfs:range rdf:resource="http://example.org/ontology/teamMeasurement#levelOfAnalysis"/>
+        <rdfs:comment>Specifies whether the measure is team-level, individual-level, etc.</rdfs:comment>
+        <rdfs:label>has level of analysis</rdfs:label>
+    </ObjectProperty>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#includesModality -->
+
+
+    <ObjectProperty rdf:about="http://example.org/ontology/teamMeasurement#includesModality">
+        <rdfs:domain rdf:resource="http://example.org/ontology/teamMeasurement#Measure"/>
+        <rdfs:range rdf:resource="http://example.org/ontology/teamMeasurement#Modality"/>
+        <rdfs:comment>Indicates the source modality or signal the measure relies on.</rdfs:comment>
+        <rdfs:label>includes modality</rdfs:label>
+    </ObjectProperty>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#manipulatesConstruct -->
+
+
+    <ObjectProperty rdf:about="http://example.org/ontology/teamMeasurement#manipulatesConstruct">
+        <rdfs:domain rdf:resource="http://example.org/ontology/teamMeasurement#Manipulation"/>
+        <rdfs:range rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+        <rdfs:comment>Relates a manipulation to the construct it intends to manipulate.</rdfs:comment>
+        <rdfs:label>manipulates construct</rdfs:label>
+    </ObjectProperty>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#measuresConstruct -->
+
+
+    <ObjectProperty rdf:about="http://example.org/ontology/teamMeasurement#measuresConstruct">
+        <rdfs:domain rdf:resource="http://example.org/ontology/teamMeasurement#Measure"/>
+        <rdfs:range rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+        <rdfs:comment>Relates a measure to the construct it captures.</rdfs:comment>
+        <rdfs:label>measures construct</rdfs:label>
+    </ObjectProperty>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#usesAnalyticTechnique -->
+
+
+    <ObjectProperty rdf:about="http://example.org/ontology/teamMeasurement#usesAnalyticTechnique">
+        <rdfs:subPropertyOf rdf:resource="http://example.org/ontology/teamMeasurement#usesMethod"/>
+        <rdfs:domain rdf:resource="http://example.org/ontology/teamMeasurement#Measure"/>
+        <rdfs:range rdf:resource="http://example.org/ontology/teamMeasurement#analyticTechnique"/>
+        <rdfs:comment>Specifies the analytic approach used to compute the measure.</rdfs:comment>
+        <rdfs:label>uses analytic technique</rdfs:label>
+    </ObjectProperty>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#usesMethod -->
+
+
+    <ObjectProperty rdf:about="http://example.org/ontology/teamMeasurement#usesMethod">
+        <rdfs:domain rdf:resource="http://example.org/ontology/teamMeasurement#Measure"/>
+        <rdfs:range rdf:resource="http://example.org/ontology/teamMeasurement#Method"/>
+        <rdfs:comment>Specifies approach used to compute or derive the measure.</rdfs:comment>
+        <rdfs:label>uses method</rdfs:label>
+    </ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#hasDescription -->
+
+
+    <DatatypeProperty rdf:about="http://example.org/ontology/teamMeasurement#hasDescription">
+        <rdfs:domain>
+            <Class>
+                <unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://example.org/ontology/teamMeasurement#Manipulation"/>
+                    <rdf:Description rdf:about="http://example.org/ontology/teamMeasurement#Measure"/>
+                </unionOf>
+            </Class>
+        </rdfs:domain>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment>description of what the measure is</rdfs:comment>
+        <rdfs:label>has description</rdfs:label>
+    </DatatypeProperty>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#hasInterpretation -->
+
+
+    <DatatypeProperty rdf:about="http://example.org/ontology/teamMeasurement#hasInterpretation">
+        <rdfs:domain rdf:resource="http://example.org/ontology/teamMeasurement#Measure"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment>description of how increasing or decreasing values of the scale are interpreted</rdfs:comment>
+        <rdfs:label>has interpretation</rdfs:label>
+    </DatatypeProperty>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#hasName -->
+
+
+    <DatatypeProperty rdf:about="http://example.org/ontology/teamMeasurement#hasName">
+        <rdfs:domain>
+            <Class>
+                <unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://example.org/ontology/teamMeasurement#Manipulation"/>
+                    <rdf:Description rdf:about="http://example.org/ontology/teamMeasurement#Measure"/>
+                </unionOf>
+            </Class>
+        </rdfs:domain>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment>name of measure</rdfs:comment>
+        <rdfs:label>has name</rdfs:label>
+    </DatatypeProperty>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#hasScale -->
+
+
+    <DatatypeProperty rdf:about="http://example.org/ontology/teamMeasurement#hasScale">
+        <rdfs:domain rdf:resource="http://example.org/ontology/teamMeasurement#Measure"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:comment>describes the scale used including type and range</rdfs:comment>
+        <rdfs:label>has scale</rdfs:label>
+    </DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#CNS -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#CNS">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#physiology"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#CRQA -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#CRQA">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#informationTheoretic"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#Construct -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#Construct"/>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#Lexical -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#Lexical">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#communicationContent"/>
+        <rdfs:comment>Measured derived from an anlysis of the specific words used during communication (e.g., mirroring word choice)</rdfs:comment>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#Manipulation -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#Manipulation">
+        <rdfs:comment>An experimental manipulation or intervention used as an independent variable</rdfs:comment>
+        <rdfs:label>experimental manipulation</rdfs:label>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#Measure -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#Measure"/>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#Method -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#Method"/>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#Modality -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#Modality"/>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#PNS -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#PNS">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#physiology"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#activityTracking -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#activityTracking">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#behavior"/>
+        <rdfs:comment>Measures derived from task performance processes (e.g., button pushes, activity tracking, mouse movement)</rdfs:comment>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#analyticTechnique -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#analyticTechnique">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Method"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#autonomic -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#autonomic">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#PNS"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#behavior -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#behavior">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Modality"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#cardiovascular -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#cardiovascular">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#sympathetic"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#cognition -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#cognition">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#cognitiveLoad -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#cognitiveLoad">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#cohesion -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#cohesion">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#communication -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#communication">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Modality"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#communicationContent -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#communicationContent">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#communication"/>
+        <rdfs:comment>Measures derived from an anlaysis of the words used in communicating amonst team members aggregated over time (e.g., to the performance phase or episode level)</rdfs:comment>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#communicationFlow -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#communicationFlow">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#communication"/>
+        <rdfs:comment>Communication measures derived from temporal dimensions of communicaiton (duration, exchange sequence)</rdfs:comment>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#conflict -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#conflict">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#coordination -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#coordination">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#crossLevel -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#crossLevel">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#levelOfAnalysis"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#decisionMaking -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#decisionMaking">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#dyad -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#dyad">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#levelOfAnalysis"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#electrodermal -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#electrodermal">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#sympathetic"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#engagementCommitment -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#engagementCommitment">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#eyeMovement -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#eyeMovement">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#behavior"/>
+        <rdfs:comment>Behavioral measures derived from eye tracking and pupliometery</rdfs:comment>
+        <rdfs:label>eye movement</rdfs:label>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#gesture -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#gesture">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#behavior"/>
+        <rdfs:comment>Behavioral measures derived from an analyticTechnique of physical para-linguistic communication (e.g., hand gestures)</rdfs:comment>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#individual -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#individual">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#levelOfAnalysis"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#informationTheoretic -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#informationTheoretic">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#analyticTechnique"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#levelOfAnalysis -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#levelOfAnalysis">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Method"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#networkAnalysis -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#networkAnalysis">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#analyticTechnique"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#observation -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#observation">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Modality"/>
+        <rdfs:comment>Measures generated by external obervers such as trainers, evaluators and assessors, or researchers</rdfs:comment>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#parasympathetic -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#parasympathetic">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#autonomic"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#physicalMovement -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#physicalMovement">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#behavior"/>
+        <rdfs:comment>Behavioral measures derived from the physical movement of team members (e.g., postural sway, patterns of co-locatoin)</rdfs:comment>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#physiology -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#physiology">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Modality"/>
+        <rdfs:label>Measures generated from physiological monitoring of team members</rdfs:label>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#problemSolving -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#problemSolving">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#resilience -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#resilience">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#satisfaction -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#satisfaction">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#semantic -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#semantic">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#communicationContent"/>
+        <rdfs:comment>Measures derived from an anlaysis of word meanings inlcuding semantic similarity or other methods using embeddings or classical content coding schemes</rdfs:comment>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#sharedMentalModel -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#sharedMentalModel">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#simpleAggregation -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#simpleAggregation">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#analyticTechnique"/>
+        <rdfs:comment>Techniques characterizig mean levels and variances</rdfs:comment>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#situationalAwareness -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#situationalAwareness">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#somatic -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#somatic">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#PNS"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#stress -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#stress">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#survey -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#survey">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Modality"/>
+        <rdfs:comment>Measures generated through self-report of individuals, which may or may not be aggregated to the team level</rdfs:comment>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#sympathetic -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#sympathetic">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#autonomic"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#synchrony -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#synchrony">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#analyticTechnique"/>
+        <rdfs:comment>Measure capturing mutual influence </rdfs:comment>
+        <rdfs:label>syncrhony</rdfs:label>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#syntactic -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#syntactic">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#communicationContent"/>
+        <rdfs:comment>Measures derived from part of speach use including sytle matching, pronoun use, and verb tense analyses.</rdfs:comment>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#taskType -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#taskType">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#team -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#team">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#levelOfAnalysis"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#teamFamiliarity -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#teamFamiliarity">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#teamPerformance -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#teamPerformance">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+    </Class>
+    
+
+
+    <!-- http://example.org/ontology/teamMeasurement#teamSize -->
+
+
+    <Class rdf:about="http://example.org/ontology/teamMeasurement#teamSize">
+        <rdfs:subClassOf rdf:resource="http://example.org/ontology/teamMeasurement#Construct"/>
+    </Class>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 5.1.18) https://github.com/owlcs/owlapi/ -->
+
+

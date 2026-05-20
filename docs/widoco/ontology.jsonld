@@ -1,0 +1,549 @@
+[ {
+  "@id" : "_:genid1",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Ontology" ]
+}, {
+  "@id" : "_:genid2",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2002/07/owl#unionOf" : [ {
+    "@list" : [ {
+      "@id" : "http://example.org/ontology/teamMeasurement#Manipulation"
+    }, {
+      "@id" : "http://example.org/ontology/teamMeasurement#Measure"
+    } ]
+  } ]
+}, {
+  "@id" : "_:genid5",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2002/07/owl#unionOf" : [ {
+    "@list" : [ {
+      "@id" : "http://example.org/ontology/teamMeasurement#Manipulation"
+    }, {
+      "@id" : "http://example.org/ontology/teamMeasurement#Measure"
+    } ]
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#CNS",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#physiology"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#CRQA",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#informationTheoretic"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#Construct",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#Lexical",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Measured derived from an anlysis of the specific words used during communication (e.g., mirroring word choice)"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#communicationContent"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#Manipulation",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "An experimental manipulation or intervention used as an independent variable"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "experimental manipulation"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#Measure",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#Method",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#Modality",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#PNS",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#physiology"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#activityTracking",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Measures derived from task performance processes (e.g., button pushes, activity tracking, mouse movement)"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#behavior"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#analyticTechnique",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Method"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#autonomic",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#PNS"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#behavior",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Modality"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#cardiovascular",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#sympathetic"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#cognition",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#cognitiveLoad",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#cohesion",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#communication",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Modality"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#communicationContent",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Measures derived from an anlaysis of the words used in communicating amonst team members aggregated over time (e.g., to the performance phase or episode level)"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#communication"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#communicationFlow",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Communication measures derived from temporal dimensions of communicaiton (duration, exchange sequence)"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#communication"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#conflict",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#coordination",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#crossLevel",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#levelOfAnalysis"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#decisionMaking",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#dyad",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#levelOfAnalysis"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#electrodermal",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#sympathetic"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#engagementCommitment",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#eyeMovement",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Behavioral measures derived from eye tracking and pupliometery"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "eye movement"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#behavior"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#gesture",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Behavioral measures derived from an analyticTechnique of physical para-linguistic communication (e.g., hand gestures)"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#behavior"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#hasDescription",
+  "@type" : [ "http://www.w3.org/2002/07/owl#DatatypeProperty" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "description of what the measure is"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#domain" : [ {
+    "@id" : "_:genid2"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "has description"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#range" : [ {
+    "@id" : "http://www.w3.org/2001/XMLSchema#string"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#hasInterpretation",
+  "@type" : [ "http://www.w3.org/2002/07/owl#DatatypeProperty" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "description of how increasing or decreasing values of the scale are interpreted"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#domain" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Measure"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "has interpretation"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#range" : [ {
+    "@id" : "http://www.w3.org/2001/XMLSchema#string"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#hasLevelOfAnalysis",
+  "@type" : [ "http://www.w3.org/2002/07/owl#ObjectProperty" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Specifies whether the measure is team-level, individual-level, etc."
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#domain" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Measure"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "has level of analysis"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#range" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#levelOfAnalysis"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#subPropertyOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#usesMethod"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#hasName",
+  "@type" : [ "http://www.w3.org/2002/07/owl#DatatypeProperty" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "name of measure"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#domain" : [ {
+    "@id" : "_:genid5"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "has name"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#range" : [ {
+    "@id" : "http://www.w3.org/2001/XMLSchema#string"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#hasScale",
+  "@type" : [ "http://www.w3.org/2002/07/owl#DatatypeProperty" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "describes the scale used including type and range"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#domain" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Measure"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "has scale"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#range" : [ {
+    "@id" : "http://www.w3.org/2001/XMLSchema#string"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#includesModality",
+  "@type" : [ "http://www.w3.org/2002/07/owl#ObjectProperty" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Indicates the source modality or signal the measure relies on."
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#domain" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Measure"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "includes modality"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#range" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Modality"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#individual",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#levelOfAnalysis"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#informationTheoretic",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#analyticTechnique"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#levelOfAnalysis",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Method"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#manipulatesConstruct",
+  "@type" : [ "http://www.w3.org/2002/07/owl#ObjectProperty" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Relates a manipulation to the construct it intends to manipulate."
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#domain" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Manipulation"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "manipulates construct"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#range" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#measuresConstruct",
+  "@type" : [ "http://www.w3.org/2002/07/owl#ObjectProperty" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Relates a measure to the construct it captures."
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#domain" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Measure"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "measures construct"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#range" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#networkAnalysis",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#analyticTechnique"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#observation",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Measures generated by external obervers such as trainers, evaluators and assessors, or researchers"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Modality"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#parasympathetic",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#autonomic"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#physicalMovement",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Behavioral measures derived from the physical movement of team members (e.g., postural sway, patterns of co-locatoin)"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#behavior"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#physiology",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "Measures generated from physiological monitoring of team members"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Modality"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#problemSolving",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#resilience",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#satisfaction",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#semantic",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Measures derived from an anlaysis of word meanings inlcuding semantic similarity or other methods using embeddings or classical content coding schemes"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#communicationContent"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#sharedMentalModel",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#simpleAggregation",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Techniques characterizig mean levels and variances"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#analyticTechnique"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#situationalAwareness",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#somatic",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#PNS"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#stress",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#survey",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Measures generated through self-report of individuals, which may or may not be aggregated to the team level"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Modality"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#sympathetic",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#autonomic"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#synchrony",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Measure capturing mutual influence "
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "syncrhony"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#analyticTechnique"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#syntactic",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Measures derived from part of speach use including sytle matching, pronoun use, and verb tense analyses."
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#communicationContent"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#taskType",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#team",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#levelOfAnalysis"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#teamFamiliarity",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#teamPerformance",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#teamSize",
+  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Construct"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#usesAnalyticTechnique",
+  "@type" : [ "http://www.w3.org/2002/07/owl#ObjectProperty" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Specifies the analytic approach used to compute the measure."
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#domain" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Measure"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "uses analytic technique"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#range" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#analyticTechnique"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#subPropertyOf" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#usesMethod"
+  } ]
+}, {
+  "@id" : "http://example.org/ontology/teamMeasurement#usesMethod",
+  "@type" : [ "http://www.w3.org/2002/07/owl#ObjectProperty" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Specifies approach used to compute or derive the measure."
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#domain" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Measure"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "uses method"
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#range" : [ {
+    "@id" : "http://example.org/ontology/teamMeasurement#Method"
+  } ]
+} ]

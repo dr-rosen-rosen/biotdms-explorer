@@ -1,0 +1,401 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.w3.org/2002/07/owl#> .
+
+[ rdf:type owl:Ontology
+ ] .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://example.org/ontology/teamMeasurement#hasLevelOfAnalysis
+<http://example.org/ontology/teamMeasurement#hasLevelOfAnalysis> rdf:type owl:ObjectProperty ;
+                                                                 rdfs:subPropertyOf <http://example.org/ontology/teamMeasurement#usesMethod> ;
+                                                                 rdfs:domain <http://example.org/ontology/teamMeasurement#Measure> ;
+                                                                 rdfs:range <http://example.org/ontology/teamMeasurement#levelOfAnalysis> ;
+                                                                 rdfs:comment "Specifies whether the measure is team-level, individual-level, etc." ;
+                                                                 rdfs:label "has level of analysis" .
+
+
+###  http://example.org/ontology/teamMeasurement#includesModality
+<http://example.org/ontology/teamMeasurement#includesModality> rdf:type owl:ObjectProperty ;
+                                                               rdfs:domain <http://example.org/ontology/teamMeasurement#Measure> ;
+                                                               rdfs:range <http://example.org/ontology/teamMeasurement#Modality> ;
+                                                               rdfs:comment "Indicates the source modality or signal the measure relies on." ;
+                                                               rdfs:label "includes modality" .
+
+
+###  http://example.org/ontology/teamMeasurement#manipulatesConstruct
+<http://example.org/ontology/teamMeasurement#manipulatesConstruct> rdf:type owl:ObjectProperty ;
+                                                                   rdfs:domain <http://example.org/ontology/teamMeasurement#Manipulation> ;
+                                                                   rdfs:range <http://example.org/ontology/teamMeasurement#Construct> ;
+                                                                   rdfs:comment "Relates a manipulation to the construct it intends to manipulate." ;
+                                                                   rdfs:label "manipulates construct" .
+
+
+###  http://example.org/ontology/teamMeasurement#measuresConstruct
+<http://example.org/ontology/teamMeasurement#measuresConstruct> rdf:type owl:ObjectProperty ;
+                                                                rdfs:domain <http://example.org/ontology/teamMeasurement#Measure> ;
+                                                                rdfs:range <http://example.org/ontology/teamMeasurement#Construct> ;
+                                                                rdfs:comment "Relates a measure to the construct it captures." ;
+                                                                rdfs:label "measures construct" .
+
+
+###  http://example.org/ontology/teamMeasurement#usesAnalyticTechnique
+<http://example.org/ontology/teamMeasurement#usesAnalyticTechnique> rdf:type owl:ObjectProperty ;
+                                                                    rdfs:subPropertyOf <http://example.org/ontology/teamMeasurement#usesMethod> ;
+                                                                    rdfs:domain <http://example.org/ontology/teamMeasurement#Measure> ;
+                                                                    rdfs:range <http://example.org/ontology/teamMeasurement#analyticTechnique> ;
+                                                                    rdfs:comment "Specifies the analytic approach used to compute the measure." ;
+                                                                    rdfs:label "uses analytic technique" .
+
+
+###  http://example.org/ontology/teamMeasurement#usesMethod
+<http://example.org/ontology/teamMeasurement#usesMethod> rdf:type owl:ObjectProperty ;
+                                                         rdfs:domain <http://example.org/ontology/teamMeasurement#Measure> ;
+                                                         rdfs:range <http://example.org/ontology/teamMeasurement#Method> ;
+                                                         rdfs:comment "Specifies approach used to compute or derive the measure." ;
+                                                         rdfs:label "uses method" .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://example.org/ontology/teamMeasurement#hasDescription
+<http://example.org/ontology/teamMeasurement#hasDescription> rdf:type owl:DatatypeProperty ;
+                                                             rdfs:domain [ rdf:type owl:Class ;
+                                                                           owl:unionOf ( <http://example.org/ontology/teamMeasurement#Manipulation>
+                                                                                         <http://example.org/ontology/teamMeasurement#Measure>
+                                                                                       )
+                                                                         ] ;
+                                                             rdfs:range xsd:string ;
+                                                             rdfs:comment "description of what the measure is" ;
+                                                             rdfs:label "has description" .
+
+
+###  http://example.org/ontology/teamMeasurement#hasInterpretation
+<http://example.org/ontology/teamMeasurement#hasInterpretation> rdf:type owl:DatatypeProperty ;
+                                                                rdfs:domain <http://example.org/ontology/teamMeasurement#Measure> ;
+                                                                rdfs:range xsd:string ;
+                                                                rdfs:comment "description of how increasing or decreasing values of the scale are interpreted" ;
+                                                                rdfs:label "has interpretation" .
+
+
+###  http://example.org/ontology/teamMeasurement#hasName
+<http://example.org/ontology/teamMeasurement#hasName> rdf:type owl:DatatypeProperty ;
+                                                      rdfs:domain [ rdf:type owl:Class ;
+                                                                    owl:unionOf ( <http://example.org/ontology/teamMeasurement#Manipulation>
+                                                                                  <http://example.org/ontology/teamMeasurement#Measure>
+                                                                                )
+                                                                  ] ;
+                                                      rdfs:range xsd:string ;
+                                                      rdfs:comment "name of measure" ;
+                                                      rdfs:label "has name" .
+
+
+###  http://example.org/ontology/teamMeasurement#hasScale
+<http://example.org/ontology/teamMeasurement#hasScale> rdf:type owl:DatatypeProperty ;
+                                                       rdfs:domain <http://example.org/ontology/teamMeasurement#Measure> ;
+                                                       rdfs:range xsd:string ;
+                                                       rdfs:comment "describes the scale used including type and range" ;
+                                                       rdfs:label "has scale" .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://example.org/ontology/teamMeasurement#CNS
+<http://example.org/ontology/teamMeasurement#CNS> rdf:type owl:Class ;
+                                                  rdfs:subClassOf <http://example.org/ontology/teamMeasurement#physiology> .
+
+
+###  http://example.org/ontology/teamMeasurement#CRQA
+<http://example.org/ontology/teamMeasurement#CRQA> rdf:type owl:Class ;
+                                                   rdfs:subClassOf <http://example.org/ontology/teamMeasurement#informationTheoretic> .
+
+
+###  http://example.org/ontology/teamMeasurement#Construct
+<http://example.org/ontology/teamMeasurement#Construct> rdf:type owl:Class .
+
+
+###  http://example.org/ontology/teamMeasurement#Lexical
+<http://example.org/ontology/teamMeasurement#Lexical> rdf:type owl:Class ;
+                                                      rdfs:subClassOf <http://example.org/ontology/teamMeasurement#communicationContent> ;
+                                                      rdfs:comment "Measured derived from an anlysis of the specific words used during communication (e.g., mirroring word choice)" .
+
+
+###  http://example.org/ontology/teamMeasurement#Manipulation
+<http://example.org/ontology/teamMeasurement#Manipulation> rdf:type owl:Class ;
+                                                           rdfs:comment "An experimental manipulation or intervention used as an independent variable" ;
+                                                           rdfs:label "experimental manipulation" .
+
+
+###  http://example.org/ontology/teamMeasurement#Measure
+<http://example.org/ontology/teamMeasurement#Measure> rdf:type owl:Class .
+
+
+###  http://example.org/ontology/teamMeasurement#Method
+<http://example.org/ontology/teamMeasurement#Method> rdf:type owl:Class .
+
+
+###  http://example.org/ontology/teamMeasurement#Modality
+<http://example.org/ontology/teamMeasurement#Modality> rdf:type owl:Class .
+
+
+###  http://example.org/ontology/teamMeasurement#PNS
+<http://example.org/ontology/teamMeasurement#PNS> rdf:type owl:Class ;
+                                                  rdfs:subClassOf <http://example.org/ontology/teamMeasurement#physiology> .
+
+
+###  http://example.org/ontology/teamMeasurement#activityTracking
+<http://example.org/ontology/teamMeasurement#activityTracking> rdf:type owl:Class ;
+                                                               rdfs:subClassOf <http://example.org/ontology/teamMeasurement#behavior> ;
+                                                               rdfs:comment "Measures derived from task performance processes (e.g., button pushes, activity tracking, mouse movement)" .
+
+
+###  http://example.org/ontology/teamMeasurement#analyticTechnique
+<http://example.org/ontology/teamMeasurement#analyticTechnique> rdf:type owl:Class ;
+                                                                rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Method> .
+
+
+###  http://example.org/ontology/teamMeasurement#autonomic
+<http://example.org/ontology/teamMeasurement#autonomic> rdf:type owl:Class ;
+                                                        rdfs:subClassOf <http://example.org/ontology/teamMeasurement#PNS> .
+
+
+###  http://example.org/ontology/teamMeasurement#behavior
+<http://example.org/ontology/teamMeasurement#behavior> rdf:type owl:Class ;
+                                                       rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Modality> .
+
+
+###  http://example.org/ontology/teamMeasurement#cardiovascular
+<http://example.org/ontology/teamMeasurement#cardiovascular> rdf:type owl:Class ;
+                                                             rdfs:subClassOf <http://example.org/ontology/teamMeasurement#sympathetic> .
+
+
+###  http://example.org/ontology/teamMeasurement#cognition
+<http://example.org/ontology/teamMeasurement#cognition> rdf:type owl:Class ;
+                                                        rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Construct> .
+
+
+###  http://example.org/ontology/teamMeasurement#cognitiveLoad
+<http://example.org/ontology/teamMeasurement#cognitiveLoad> rdf:type owl:Class ;
+                                                            rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Construct> .
+
+
+###  http://example.org/ontology/teamMeasurement#cohesion
+<http://example.org/ontology/teamMeasurement#cohesion> rdf:type owl:Class ;
+                                                       rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Construct> .
+
+
+###  http://example.org/ontology/teamMeasurement#communication
+<http://example.org/ontology/teamMeasurement#communication> rdf:type owl:Class ;
+                                                            rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Modality> .
+
+
+###  http://example.org/ontology/teamMeasurement#communicationContent
+<http://example.org/ontology/teamMeasurement#communicationContent> rdf:type owl:Class ;
+                                                                   rdfs:subClassOf <http://example.org/ontology/teamMeasurement#communication> ;
+                                                                   rdfs:comment "Measures derived from an anlaysis of the words used in communicating amonst team members aggregated over time (e.g., to the performance phase or episode level)" .
+
+
+###  http://example.org/ontology/teamMeasurement#communicationFlow
+<http://example.org/ontology/teamMeasurement#communicationFlow> rdf:type owl:Class ;
+                                                                rdfs:subClassOf <http://example.org/ontology/teamMeasurement#communication> ;
+                                                                rdfs:comment "Communication measures derived from temporal dimensions of communicaiton (duration, exchange sequence)" .
+
+
+###  http://example.org/ontology/teamMeasurement#conflict
+<http://example.org/ontology/teamMeasurement#conflict> rdf:type owl:Class ;
+                                                       rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Construct> .
+
+
+###  http://example.org/ontology/teamMeasurement#coordination
+<http://example.org/ontology/teamMeasurement#coordination> rdf:type owl:Class ;
+                                                           rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Construct> .
+
+
+###  http://example.org/ontology/teamMeasurement#crossLevel
+<http://example.org/ontology/teamMeasurement#crossLevel> rdf:type owl:Class ;
+                                                         rdfs:subClassOf <http://example.org/ontology/teamMeasurement#levelOfAnalysis> .
+
+
+###  http://example.org/ontology/teamMeasurement#decisionMaking
+<http://example.org/ontology/teamMeasurement#decisionMaking> rdf:type owl:Class ;
+                                                             rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Construct> .
+
+
+###  http://example.org/ontology/teamMeasurement#dyad
+<http://example.org/ontology/teamMeasurement#dyad> rdf:type owl:Class ;
+                                                   rdfs:subClassOf <http://example.org/ontology/teamMeasurement#levelOfAnalysis> .
+
+
+###  http://example.org/ontology/teamMeasurement#electrodermal
+<http://example.org/ontology/teamMeasurement#electrodermal> rdf:type owl:Class ;
+                                                            rdfs:subClassOf <http://example.org/ontology/teamMeasurement#sympathetic> .
+
+
+###  http://example.org/ontology/teamMeasurement#engagementCommitment
+<http://example.org/ontology/teamMeasurement#engagementCommitment> rdf:type owl:Class ;
+                                                                   rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Construct> .
+
+
+###  http://example.org/ontology/teamMeasurement#eyeMovement
+<http://example.org/ontology/teamMeasurement#eyeMovement> rdf:type owl:Class ;
+                                                          rdfs:subClassOf <http://example.org/ontology/teamMeasurement#behavior> ;
+                                                          rdfs:comment "Behavioral measures derived from eye tracking and pupliometery" ;
+                                                          rdfs:label "eye movement" .
+
+
+###  http://example.org/ontology/teamMeasurement#gesture
+<http://example.org/ontology/teamMeasurement#gesture> rdf:type owl:Class ;
+                                                      rdfs:subClassOf <http://example.org/ontology/teamMeasurement#behavior> ;
+                                                      rdfs:comment "Behavioral measures derived from an analyticTechnique of physical para-linguistic communication (e.g., hand gestures)" .
+
+
+###  http://example.org/ontology/teamMeasurement#individual
+<http://example.org/ontology/teamMeasurement#individual> rdf:type owl:Class ;
+                                                         rdfs:subClassOf <http://example.org/ontology/teamMeasurement#levelOfAnalysis> .
+
+
+###  http://example.org/ontology/teamMeasurement#informationTheoretic
+<http://example.org/ontology/teamMeasurement#informationTheoretic> rdf:type owl:Class ;
+                                                                   rdfs:subClassOf <http://example.org/ontology/teamMeasurement#analyticTechnique> .
+
+
+###  http://example.org/ontology/teamMeasurement#levelOfAnalysis
+<http://example.org/ontology/teamMeasurement#levelOfAnalysis> rdf:type owl:Class ;
+                                                              rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Method> .
+
+
+###  http://example.org/ontology/teamMeasurement#networkAnalysis
+<http://example.org/ontology/teamMeasurement#networkAnalysis> rdf:type owl:Class ;
+                                                              rdfs:subClassOf <http://example.org/ontology/teamMeasurement#analyticTechnique> .
+
+
+###  http://example.org/ontology/teamMeasurement#observation
+<http://example.org/ontology/teamMeasurement#observation> rdf:type owl:Class ;
+                                                          rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Modality> ;
+                                                          rdfs:comment "Measures generated by external obervers such as trainers, evaluators and assessors, or researchers" .
+
+
+###  http://example.org/ontology/teamMeasurement#parasympathetic
+<http://example.org/ontology/teamMeasurement#parasympathetic> rdf:type owl:Class ;
+                                                              rdfs:subClassOf <http://example.org/ontology/teamMeasurement#autonomic> .
+
+
+###  http://example.org/ontology/teamMeasurement#physicalMovement
+<http://example.org/ontology/teamMeasurement#physicalMovement> rdf:type owl:Class ;
+                                                               rdfs:subClassOf <http://example.org/ontology/teamMeasurement#behavior> ;
+                                                               rdfs:comment "Behavioral measures derived from the physical movement of team members (e.g., postural sway, patterns of co-locatoin)" .
+
+
+###  http://example.org/ontology/teamMeasurement#physiology
+<http://example.org/ontology/teamMeasurement#physiology> rdf:type owl:Class ;
+                                                         rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Modality> ;
+                                                         rdfs:label "Measures generated from physiological monitoring of team members" .
+
+
+###  http://example.org/ontology/teamMeasurement#problemSolving
+<http://example.org/ontology/teamMeasurement#problemSolving> rdf:type owl:Class ;
+                                                             rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Construct> .
+
+
+###  http://example.org/ontology/teamMeasurement#resilience
+<http://example.org/ontology/teamMeasurement#resilience> rdf:type owl:Class ;
+                                                         rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Construct> .
+
+
+###  http://example.org/ontology/teamMeasurement#satisfaction
+<http://example.org/ontology/teamMeasurement#satisfaction> rdf:type owl:Class ;
+                                                           rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Construct> .
+
+
+###  http://example.org/ontology/teamMeasurement#semantic
+<http://example.org/ontology/teamMeasurement#semantic> rdf:type owl:Class ;
+                                                       rdfs:subClassOf <http://example.org/ontology/teamMeasurement#communicationContent> ;
+                                                       rdfs:comment "Measures derived from an anlaysis of word meanings inlcuding semantic similarity or other methods using embeddings or classical content coding schemes" .
+
+
+###  http://example.org/ontology/teamMeasurement#sharedMentalModel
+<http://example.org/ontology/teamMeasurement#sharedMentalModel> rdf:type owl:Class ;
+                                                                rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Construct> .
+
+
+###  http://example.org/ontology/teamMeasurement#simpleAggregation
+<http://example.org/ontology/teamMeasurement#simpleAggregation> rdf:type owl:Class ;
+                                                                rdfs:subClassOf <http://example.org/ontology/teamMeasurement#analyticTechnique> ;
+                                                                rdfs:comment "Techniques characterizig mean levels and variances" .
+
+
+###  http://example.org/ontology/teamMeasurement#situationalAwareness
+<http://example.org/ontology/teamMeasurement#situationalAwareness> rdf:type owl:Class ;
+                                                                   rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Construct> .
+
+
+###  http://example.org/ontology/teamMeasurement#somatic
+<http://example.org/ontology/teamMeasurement#somatic> rdf:type owl:Class ;
+                                                      rdfs:subClassOf <http://example.org/ontology/teamMeasurement#PNS> .
+
+
+###  http://example.org/ontology/teamMeasurement#stress
+<http://example.org/ontology/teamMeasurement#stress> rdf:type owl:Class ;
+                                                     rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Construct> .
+
+
+###  http://example.org/ontology/teamMeasurement#survey
+<http://example.org/ontology/teamMeasurement#survey> rdf:type owl:Class ;
+                                                     rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Modality> ;
+                                                     rdfs:comment "Measures generated through self-report of individuals, which may or may not be aggregated to the team level" .
+
+
+###  http://example.org/ontology/teamMeasurement#sympathetic
+<http://example.org/ontology/teamMeasurement#sympathetic> rdf:type owl:Class ;
+                                                          rdfs:subClassOf <http://example.org/ontology/teamMeasurement#autonomic> .
+
+
+###  http://example.org/ontology/teamMeasurement#synchrony
+<http://example.org/ontology/teamMeasurement#synchrony> rdf:type owl:Class ;
+                                                        rdfs:subClassOf <http://example.org/ontology/teamMeasurement#analyticTechnique> ;
+                                                        rdfs:comment "Measure capturing mutual influence " ;
+                                                        rdfs:label "syncrhony" .
+
+
+###  http://example.org/ontology/teamMeasurement#syntactic
+<http://example.org/ontology/teamMeasurement#syntactic> rdf:type owl:Class ;
+                                                        rdfs:subClassOf <http://example.org/ontology/teamMeasurement#communicationContent> ;
+                                                        rdfs:comment "Measures derived from part of speach use including sytle matching, pronoun use, and verb tense analyses." .
+
+
+###  http://example.org/ontology/teamMeasurement#taskType
+<http://example.org/ontology/teamMeasurement#taskType> rdf:type owl:Class ;
+                                                       rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Construct> .
+
+
+###  http://example.org/ontology/teamMeasurement#team
+<http://example.org/ontology/teamMeasurement#team> rdf:type owl:Class ;
+                                                   rdfs:subClassOf <http://example.org/ontology/teamMeasurement#levelOfAnalysis> .
+
+
+###  http://example.org/ontology/teamMeasurement#teamFamiliarity
+<http://example.org/ontology/teamMeasurement#teamFamiliarity> rdf:type owl:Class ;
+                                                              rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Construct> .
+
+
+###  http://example.org/ontology/teamMeasurement#teamPerformance
+<http://example.org/ontology/teamMeasurement#teamPerformance> rdf:type owl:Class ;
+                                                              rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Construct> .
+
+
+###  http://example.org/ontology/teamMeasurement#teamSize
+<http://example.org/ontology/teamMeasurement#teamSize> rdf:type owl:Class ;
+                                                       rdfs:subClassOf <http://example.org/ontology/teamMeasurement#Construct> .
+
+
+###  Generated by the OWL API (version 5.1.18) https://github.com/owlcs/owlapi/
