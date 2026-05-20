@@ -115,9 +115,9 @@ uv run python cli.py \
   --raw-dir /path/to/raw/data \
   --output-dir data/processed_sessions \
   --data-dir data \
-  --entropy /path/to/team_entropy_ami_DCE3.csv \
-  --subtask /path/to/SubTask_LookupTable_DCE3.xlsx \
-  --com-dir /path/to/DCE3_zoom_timeseries/
+  --entropy /path/to/team_entropy_ami_DCE{N}.csv \
+  --subtask /path/to/SubTask_LookupTable_DCE{N}.xlsx \
+  --com-dir /path/to/DCE{N}}_zoom_timeseries/
 ```
 
 `--entropy`, `--subtask`, and `--com-dir` are all repeatable for installing multiple per-DCE inputs in a single call. Additional flags: `--force` (reprocess existing parquets), `--quiet` (summary only), `--rebuild-index-only` (skip ingestion and just rebuild `sessions_index.parquet` from existing session parquets).
