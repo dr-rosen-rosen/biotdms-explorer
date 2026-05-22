@@ -149,8 +149,9 @@ e.g., `zoom_timeseries_Team1Day2Session2FOA.csv`. Files that don't match this ex
 
 #### Raw data directory structure
 
-Both ingestion paths expect raw data in this structure:
+Both ingestion paths accept either of two raw-data layouts (the parser handles both transparently):
 
+**Layout A — original format (pre-2026-05 data):**
 ```
 {raw_root}/
   DCE{N}/
@@ -160,6 +161,22 @@ Both ingestion paths expect raw data in this structure:
           merged/
             merged_Day{N}_Session{N}_{Role}_Subj{NNN}_1hz.csv
 ```
+
+**Layout B — integration team format (2026-05 onwards):**
+```
+{raw_root}/
+  CRA_DCE{N}/
+    Team{N}/
+      Day{N}/
+        Session{N}/
+          {Role}_Subj{NNN}/
+            merged/
+              merged_CRA_DCE{N}_Team{N}_Day{N}_Session{N}_{Role}_Subj{NNN}_v{VERSION}_1hz.csv
+```
+
+Differences in Layout B: the DCE folder is prefixed (`CRA_DCE1` instead of `DCE1`), there is an extra `Day{N}` folder between Team and Session, the filename repeats the path metadata as a prefix, and the filename includes a version segment (e.g., `_v1.0.0_`) before the rate.
+
+The parser normalizes both layouts to the same internal representation, so the resulting parquet files end up at `data/processed_sessions/DCE{N}/Team{N}_Day{N}_Session{N}.parquet` regardless of source layout. You can point `--raw-dir` at any level that contains the `DCE` or `CRA_DCE` folders — typically the parent of the `CRA_DCE{N}` directories.
 
 ## Ontology ETL
 
@@ -208,6 +225,8 @@ uv run streamlit run app.py
 **"Could not find instances.ttl"** — Place your ontology file in `data/ontologies/instances.ttl`
 
 **No sessions appear in UC2** — Use the sidebar Data Management panel (or `cli.py`) to ingest session data, or check that `data/processed_sessions/` contains parquet files
+
+**Ingestion reports "no new sessions to process" but the directory has data** — The discovery step silently skips files that don't match the expected layout. Check that (a) each CSV lives in a folder literally named `merged/`, (b) the filename contains the tokens `Day{N}_Session{N}_{Role}_Subj{NNN}_…_{N}hz.csv` somewhere in it, and (c) the path includes both a `DCE{N}` segment (or a segment containing `DCE{N}`, like `CRA_DCE1`) and a `Team{N}` segment. Either old or new directory layout (see "Raw data directory structure" above) is accepted.
 
 **Entropy data not showing up** — Confirm the file is named to match `team_entropy_ami*.csv` (e.g., `team_entropy_ami_DCE3.csv`). Files with other names (e.g., `entropy_ami_dataset_dce3.csv`) will install but won't be loaded.
 

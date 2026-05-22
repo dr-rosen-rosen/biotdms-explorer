@@ -29,13 +29,50 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 # ── Filename / path parsing ─────────────────────────────────────────
+#
+# Flexible search-based pattern: locates the Day/Session/Role/Subj/rate tokens
+# wherever they appear in the filename body. This tolerates both:
+#   - Old format: merged_Day3_Session2_FOA_Subj023_1hz.csv
+#   - New format: merged_CRA_DCE1_Team3_Day1_Session3_FOA_Subj001_v1.0.0_1hz.csv
+# The lazy gap between Subj and the rate absorbs version segments (e.g. _v1.0.0).
 
 MERGED_FILENAME_RE = re.compile(
-    r'^merged_(?P<day>Day\d+)_(?P<session>Session\d+)_(?P<role>[A-Za-z]+)_(?P<subject>Subj\d+)_(?P<rate>\w+)\.csv$'
+    r'(?P<day>Day\d+)'
+    r'_(?P<session>Session\d+)'
+    r'_(?P<role>[A-Za-z]+)'
+    r'_(?P<subject>Subj\d+)'
+    r'.*?'                                # absorb version segments etc.
+    r'_(?P<rate>\d+hz)'
+    r'\.csv$',
+    re.IGNORECASE,
 )
+
+# Matches a path segment containing a DCE identifier — handles both
+# 'DCE2' (old) and 'CRA_DCE1' (new) by extracting just the 'DCE\d+' part.
+DCE_IN_SEGMENT_RE = re.compile(r'DCE\d+', re.IGNORECASE)
+
+# Matches a path segment that is exactly a team folder (e.g., 'Team3').
+TEAM_SEGMENT_RE = re.compile(r'^Team\d+$', re.IGNORECASE)
 
 # Columns that are metadata (don't get role-prefixed)
 META_COLUMNS = {'time_stamp', 'trial_running'}
+
+
+def _path_parts(filepath: Path) -> List[str]:
+    """Return path components, splitting on both '/' and '\\'.
+
+    `Path.parts` on a non-Windows host does NOT split a string that uses
+    backslashes (it treats the whole thing as one part). The integration
+    team passes Windows-style paths from notebooks; this helper makes the
+    parser robust regardless of which OS the parsing happens on.
+    """
+    out: List[str] = []
+    for p in filepath.parts:
+        if '\\' in p:
+            out.extend(part for part in p.split('\\') if part)
+        else:
+            out.append(p)
+    return out
 
 
 # ── Data classes ────────────────────────────────────────────────────
@@ -109,15 +146,29 @@ class IngestReport:
 # ── Parsing ─────────────────────────────────────────────────────────
 
 def parse_merged_csv(filepath: Path) -> Optional[MemberFile]:
-    """Parse metadata from a merged CSV filepath."""
-    fname_match = MERGED_FILENAME_RE.match(filepath.name)
+    """Parse metadata from a merged CSV filepath.
+
+    Tolerates extra prefix segments in the filename (e.g., 'CRA_DCE1_Team3_'),
+    trailing version segments (e.g., '_v1.0.0_'), and extracts the DCE
+    identifier from any path component that contains 'DCE\\d+' (handles
+    both 'DCE2' and 'CRA_DCE1' parent folder naming).
+    """
+    fname_match = MERGED_FILENAME_RE.search(filepath.name)
     if not fname_match:
         return None
 
-    # Walk up path to find DCE/Team folders
-    parts = filepath.parts
-    dce = next((p for p in parts if re.match(r'^DCE\d+$', p)), None)
-    team = next((p for p in parts if re.match(r'^Team\d+$', p)), None)
+    # Walk path parts to find DCE and Team folders.
+    # _path_parts handles backslash-style paths even on non-Windows hosts.
+    parts = _path_parts(filepath)
+
+    dce = None
+    for p in parts:
+        m = DCE_IN_SEGMENT_RE.search(p)
+        if m:
+            dce = m.group(0).upper()  # normalize to 'DCE{N}' (strip CRA_ etc.)
+            break
+
+    team = next((p for p in parts if TEAM_SEGMENT_RE.match(p)), None)
 
     if not dce or not team:
         return None
@@ -139,7 +190,10 @@ def discover_sessions(raw_root: Path) -> List[SessionGroup]:
     """Discover all merged CSV files and group by team session."""
     groups: Dict[tuple, SessionGroup] = {}
 
-    for csv_path in sorted(raw_root.rglob('merged_*_1hz.csv')):
+    # Glob is loosened from 'merged_*_1hz.csv' to 'merged_*.csv' because the new
+    # filename format has additional segments (e.g., _v1.0.0_) between Subj and
+    # the rate. The MERGED_FILENAME_RE still enforces the rate token.
+    for csv_path in sorted(raw_root.rglob('merged_*.csv')):
         # Only files inside a 'merged' subfolder
         if csv_path.parent.name != 'merged':
             continue

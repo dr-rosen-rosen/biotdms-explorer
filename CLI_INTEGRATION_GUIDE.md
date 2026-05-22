@@ -18,12 +18,44 @@ to stand up the app's data layer without launching the Streamlit UI.
 |-----------------------|---------------------------------------------------------|-------------------------------------------------------|
 | Entropy/AMI CSV       | `team_entropy_ami_{DCE}.csv`                            | `team_entropy_ami_DCE3.csv`                           |
 | Subtask lookup        | `SubTask_LookupTable_{DCE}.xlsx`                        | `SubTask_LookupTable_DCE3.xlsx`                       |
-| Merged sensor CSV     | `merged_{Day}_{Session}_{Role}_{Subject}_1hz.csv`       | `merged_Day3_Session2_FOA_Subj023_1hz.csv`            |
+| Merged sensor CSV (legacy)  | `merged_{Day}_{Session}_{Role}_{Subject}_1hz.csv` | `merged_Day3_Session2_FOA_Subj023_1hz.csv`            |
+| Merged sensor CSV (integration team format) | `merged_CRA_DCE{N}_Team{N}_{Day}_{Session}_{Role}_{Subject}_v{VERSION}_1hz.csv` | `merged_CRA_DCE1_Team3_Day1_Session3_FOA_Subj001_v1.0.0_1hz.csv` |
 | Communication (zoom)  | `zoom_timeseries_Team{N}Day{N}Session{N}{Role}.csv`     | `zoom_timeseries_Team1Day2Session2FOA.csv`            |
+
+**Merged sensor CSV — accepted variants.** The parser handles both the legacy filename format and the integration team's 2026-05 format. As long as the filename contains the tokens `Day{N}`, `Session{N}`, `{Role}`, `Subj{NNN}`, and ends with `_{N}hz.csv`, any extra prefix or version segments between them are absorbed. The file must still live in a folder literally named `merged/`, and the path above that folder must include both a DCE-bearing segment (e.g., `DCE2` or `CRA_DCE1`) and a `Team{N}` segment.
 
 **Important**: Entropy and subtask files must have unique names per DCE so
 multiple files can coexist in the app's data directory. Communication files
 are scoped per-(team, day, session, role) — one file per role per session.
+
+## Raw Data Directory Structure
+
+`--raw-dir` accepts either of two source layouts (the parser handles both):
+
+**Layout A — legacy:**
+```
+{raw_root}/
+  DCE{N}/
+    Team{N}/
+      Session{N}/
+        {Role}_Subj{NNN}/
+          merged/
+            merged_Day{N}_Session{N}_{Role}_Subj{NNN}_1hz.csv
+```
+
+**Layout B — integration team format:**
+```
+{raw_root}/
+  CRA_DCE{N}/
+    Team{N}/
+      Day{N}/
+        Session{N}/
+          {Role}_Subj{NNN}/
+            merged/
+              merged_CRA_DCE{N}_Team{N}_Day{N}_Session{N}_{Role}_Subj{NNN}_v{VERSION}_1hz.csv
+```
+
+Point `--raw-dir` at the parent of the `DCE{N}` or `CRA_DCE{N}` folders. Either way the output parquets land at `{output-dir}/DCE{N}/Team{N}_Day{N}_Session{N}.parquet` — the `CRA_` prefix is stripped during ingestion to keep parquet paths consistent across deliveries.
 
 ### Communication file internal structure
 
